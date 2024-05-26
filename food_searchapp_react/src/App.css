@@ -1,5 +1,13 @@
 .App {
   text-align: center;
+  display: block;
+  /* flexから変更 */
+  height: auto;
+  /* 100vhを削除 */
+  background-color: transparent;
+  /* #282c34から変更 */
+  color: #333;
+  /* whiteから変更 */
 }
 
 .App-logo {
@@ -32,7 +40,109 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+form {
+  width: 100%;
+  /* max-widthを削除 */
+  max-width: 400px;
+  /* 追加 */
+}
+
+input,
+button {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+/* スマホやタブレット向けのスタイル調整 */
+@media (max-width: 768px) {
+  .container {
+      flex-direction: column-reverse; /* フォームを下に表示 */
+  }
+
+  .left-panel {
+      height: auto;
+      flex-grow: 1; /* 画像が残りのスペースをすべて使用 */
+  }
+
+  .right-panel {
+      position: absolute; /* フォームを画面下に固定 */
+      bottom: 0;
+      /* left: 0;
+      right: 0; */
+      background: rgba(255, 255, 255, 0.95); /* 背景を少し透明に */
+      padding: 20px;
+      box-shadow: 0px -4px 6px rgba(0,0,0,0.1); /* 上方向の影を追加 */
+      border-top-left-radius: 20px; /* 角を丸くする */
+      border-top-right-radius: 20px; /* 角を丸くする */
+  }
+}
+
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.left-panel,
+.right-panel {
+  flex: 1;
+  /* これにより、左右のパネルが等しい幅で表示されます */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.left-panel {
+  animation: colorFade 10s infinite;
+  /* アニメーションの適用 */
+}
+
+.left-panel img {
+  width: 100%;
+  /* 画像をパネルの幅いっぱいに表示 */
+  height: auto;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  /* background-color: #fff; */
+  color: #333;
+}
+
+
+
+
+/* Additional styling for the Signin links */
+.additional-links {
+  margin-top: 20px;
+  /* Adds space between the login button and the links */
+}
+
+.logined-links {
+  margin-top: 20px;
+  /* Adds space between the login button and the links */
+}
+
+.return-to-login {
+  margin-top: 20px;
+  /* Adjust the space as needed */
+}
+
+.submit-links {
+  margin-top: 20px;
+  /* Adjust the space as needed */
 }
