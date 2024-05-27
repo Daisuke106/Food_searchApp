@@ -91,14 +91,20 @@ function Signup() {
     }
   };
 
+  // ユーザー登録処理
   const handleSignup = async (event) => {
+    // フォームのデフォルトの動作をキャンセル
     event.preventDefault();
+    // ユーザー名、パスワード、パスワード確認が入力されているか、パスワードが6文字以上であるか、パスワードとパスワード確認が一致しているかをチェック
     if (!userName || !email || !password || password.length < 6 || password !== passwordConfirm) {
       onOpen();
       return;
     }
+    // ユーザー登録処理を開始
     setSubmitting(true);
+    // ローディングスクリーンを表示
     page.start();
+    // ローディングメッセージを表示
     setLoadingMessage("読み込み中...");
 
     try {
