@@ -39,6 +39,7 @@ function Signup() {
   const [isSubmitting, setSubmitting] = useState(false);
   const [userName, setUserName] = useState('');
   const [userNameTouched, setUserNameTouched] = useState(false);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -47,8 +48,6 @@ function Signup() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [isPinModalOpen, setPinModalOpen] = useState(false);
   const [pin, setPin] = useState('');
-
-
 
   const colorChangeAnimation = useAnimation({
     keyframes: {
@@ -68,16 +67,22 @@ function Signup() {
     console.log("入力されたPIN: ", value);
     page.start();
     try {
-      // ここで非同期のPIN検証ロジックを実装する
-      await new Promise(resolve => setTimeout(resolve, 2000)); // ダミーの非同期処理の実装
-      if (value === '1234') {
+      const response = await fetch('http://localhost:8080/api/auth/verify-pin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, pin: value })
+      });
+      const data = await response.json();
+      if (data.success) {
         console.log("PINが正しいです。");
-        notice({ description: "登録が完了しました。ログインをお願いします。" }); // 通知を表示
+        notice({ description: "登録が完了しました。ログインをお願いします。" });
         setPinModalOpen(false);
         navigate('/'); // Signinページに遷移
       } else {
         console.log("PINが間違っています。");
-        // エラーメッセージを表示するなどの処理をここに追加
+        notice({ description: "PINが間違っています。" });
       }
     } catch (error) {
       console.error("PIN検証中にエラーが発生しました", error);
@@ -86,40 +91,40 @@ function Signup() {
     }
   };
 
-
-
-
-  // ユーザー登録処理
   const handleSignup = async (event) => {
-    // フォームのデフォルトの動作をキャンセル
     event.preventDefault();
-    // ユーザー名、パスワード、パスワード確認が入力されているか、パスワードが6文字以上であるか、パスワードとパスワード確認が一致しているかをチェック
-    if (!userName || !password || password.length < 6 || password !== passwordConfirm) {
-      // 入力エラーがある場合、モーダルを開く
+    if (!userName || !email || !password || password.length < 6 || password !== passwordConfirm) {
       onOpen();
       return;
     }
-    // ユーザー登録処理を開始
     setSubmitting(true);
-    // ローディングスクリーンを表示
     page.start();
-    // ローディングメッセージを表示
     setLoadingMessage("読み込み中...");
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      //登録のロジックを実装
-      setLoadingMessage("");
-      setPinModalOpen(true); // 登録成功時にPIN入力モーダルを開く
+      const response = await fetch('http://localhost:8080/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: userName, email: email, password: password })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setLoadingMessage("");
+        setPinModalOpen(true); // 登録成功時にPIN入力モーダルを開く
+      } else {
+        notice({ description: data.message });
+      }
+    } catch (error) {
+      console.error("ユーザー登録中にエラーが発生しました", error);
     } finally {
       setSubmitting(false);
       page.finish();
-      setLoadingMessage(""); // ローディングメッセージをクリア
+      setLoadingMessage("");
     }
   };
 
-  // レンダリング処理
   return (
     <AnimatePage direction="left">
       <div className="container">
@@ -138,7 +143,7 @@ function Signup() {
             </FormControl>
             <FormControl isRequired label="メールアドレス">
               <Label>メールアドレス</Label>
-              <Input type='email' placeholder='メールアドレス' />
+              <Input type='email' placeholder='メールアドレス' value={email} onChange={(e) => { setEmail(e.target.value); }} />
             </FormControl>
             <FormControl isRequired label="パスワード" isInvalid={passwordTouched && password.length < 6} errorMessage={passwordTouched && (password.length < 6) && "パスワードは6文字以上です。"}>
               <Label>パスワード</Label>
@@ -190,7 +195,6 @@ function Signup() {
               <Button onClick={() => setPinModalOpen(false)}>閉じる</Button>
             </ModalFooter>
           </Modal>
-
         </div>
       </div>
     </AnimatePage>
