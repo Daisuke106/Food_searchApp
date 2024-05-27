@@ -38,7 +38,6 @@ const logoImage = process.env.PUBLIC_URL + '/images/FOOD_search.jpg';
 function Signin() {
     // useLoadingフックを使用して、ローディングスクリーンを表示するための関数を取得
     const { screen } = useLoading();
-    const { screen } = useLoading();
     // useStateフックを使用して、ユーザーIDとパスワードの状態を管理
     const [isSubmitting, setSubmitting] = useState(false);
     // ユーザーIDの状態を管理するための変数と、ユーザーIDを更新するための関数を取得
