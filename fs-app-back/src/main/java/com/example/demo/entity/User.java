@@ -18,8 +18,8 @@ public class User {
 	@Column(name = "id", nullable = false)
 	private int id;
 
-	@Column(name = "username", nullable = false, length = 50)
-	private String username;
+	@Column(name = "name", nullable = false, length = 50)
+	private String name;
 
 	@Column(name = "email", nullable = false, length = 100, unique = true)
 	private String email;
@@ -38,12 +38,12 @@ public class User {
 		this.id = id;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getName() {
+		return name;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getPassword() {

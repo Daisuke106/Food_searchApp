@@ -20,7 +20,7 @@ public class AuthService {
 
 	//ログイン用
 	public boolean loginUser(String username, String password) {
-		Optional<User> userOptional = userRepository.findByUsername(username);
+		Optional<User> userOptional = userRepository.findByName(username);
 		if (userOptional.isEmpty()) {
 			return false;
 		}
@@ -35,7 +35,7 @@ public class AuthService {
 
 	//名前かemailの重複確認
 	public boolean isUserExists(String username, String email) {
-		return userRepository.findByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent();
+		return userRepository.findByName(username).isPresent() || userRepository.findByEmail(email).isPresent();
 	}
 
 	//パスワードのハッシュ化
@@ -44,7 +44,7 @@ public class AuthService {
 	}
 
 	public Optional<User> getUserByUsername(String username) {
-		return userRepository.findByUsername(username);
+		return userRepository.findByName(username);
 	}
 
 }
