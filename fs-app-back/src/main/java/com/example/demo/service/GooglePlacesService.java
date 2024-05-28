@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class GooglePlacesService {
 
-	@Value("${google.places.api.key}")
+	@Value("${hotpepper.gourmet.api.key}")
 	private String apiKey;
 
 	private final String baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
