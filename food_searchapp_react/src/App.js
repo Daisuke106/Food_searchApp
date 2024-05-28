@@ -8,7 +8,6 @@ import Signup from './Signup';
 import ResetPass from './ResetPass';
 import AnimatePage from './AnimatePage';
 import Main from './Main';
-import Main from './Main';
 
 function AnimatedRoutes() {
   const location = useLocation();
