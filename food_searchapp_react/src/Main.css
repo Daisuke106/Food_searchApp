@@ -1,0 +1,13 @@
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
+
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    /* 他の要素より前面に表示 */
+}
+#MainCS {
+    background-color: bisque;
+}
