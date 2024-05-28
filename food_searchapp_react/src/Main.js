@@ -1,5 +1,5 @@
 import { Box, Button } from '@yamada-ui/react'; // Buttonもインポート
-import { LoadScript, GoogleMap } from "@react-google-maps/api";
+import { LoadScript, GoogleMap , MarkerF} from "@react-google-maps/api";
 import React, { useState, useRef } from 'react';
 import { useNotice } from '@yamada-ui/react'; // Yamada UIのuseNoticeフックをインポート
 
@@ -47,10 +47,13 @@ function Main() {
     return (
         <Box className="container" display="flex" height="100vh" alignItems="center" justifyContent="center" flexWrap="wrap">
             <Button onClick={handleLocation} colorScheme="blue">現在地の取得</Button>
-            <Box width="100vw" height="50vh"></Box>
+            <Box width="100vw" height="50vh">
+
+            </Box>
             <Box width="80vw" height="50vh">
                 <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
                     <GoogleMap mapContainerStyle={container} center={position} zoom={15}>
+                        <MarkerF visible={true} position={position} />
                     </GoogleMap>
                 </LoadScript>
             </Box>
