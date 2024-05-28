@@ -20,7 +20,7 @@ import {
     PinInput,
     PinInputField
 } from '@yamada-ui/react';
-
+import './App.css';
 // ロゴ画像のパスを定義
 const logoImage = process.env.PUBLIC_URL + '/images/FOOD_search.jpg';
 

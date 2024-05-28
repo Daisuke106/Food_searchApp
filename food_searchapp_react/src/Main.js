@@ -1,13 +1,15 @@
+import React, { useState, useRef } from 'react';
 import { Box, Button } from '@yamada-ui/react';
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
-import React, { useState, useRef } from 'react';
+import Slider from "react-slick";
 import { useNotice } from '@yamada-ui/react';
 
 function Main() {
-    const [datas] = useState([]);
     const [position, setPosition] = useState({ lat: 35.680959106959, lng: 139.76730676352 });
     const notice = useNotice();
     const noticeRef = useRef();
+    // 画像パスをルートからの相対パスに変更
+    const datas = [{ url: "/images/family_food.jpg", name: "店舗1" }, { url: "/images/image2.jpg", name: "店舗2" }];
 
     const handleLocation = () => {
         noticeRef.current = notice({
@@ -39,28 +41,33 @@ function Main() {
         );
     };
 
-    const container = {
-        width: "100%",
-        height: "100%"
+    const sliderSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1
     };
 
     return (
-        <Box className="container" display="flex" height="100vh" alignItems="center" justifyContent="center" flexWrap="wrap">
-            <Button onClick={handleLocation} colorScheme="blue">現在地の取得</Button>
-            <Box width="100vw" height="50vh"></Box>
-            <Box width="80vw" height="50vh">
-                <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-                    <GoogleMap mapContainerStyle={container} center={position} zoom={15}>
-                    </GoogleMap>
-                </LoadScript>
+        <Box className="container" display="flex" flexDirection="column" height="100vh">
+            <Box className="header" width="100%" zIndex="1000" position="fixed" top="0" backgroundColor="white">
+                <Slider {...sliderSettings}>
+                    {datas.map(data => (
+                        <div key={data.url}>
+                            <img src={data.url} alt={data.name} style={{ width: "100%", height: "auto" }} />
+                        </div>
+                    ))}
+                </Slider>
             </Box>
-            <Box display="flex" alignItems="center" justifyContent="center" flexWrap="wrap">
-                {datas.map(data => (
-                    <Box width="80%" display="flex" flexWrap='nowrap'>
-                        <img src={data.url} alt='レストランの写真' />
-                        <div>{data.name}</div>
-                    </Box>
-                ))}
+            <Box display="flex" flexDirection="column" height="100vh" paddingTop="300px">
+                <Button onClick={handleLocation} colorScheme="blue">現在地の取得</Button>
+                <Box width="100vw" height="50vh" marginTop="20px">
+                    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                        <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={position} zoom={15}>
+                        </GoogleMap>
+                    </LoadScript>
+                </Box>
             </Box>
         </Box>
     );
