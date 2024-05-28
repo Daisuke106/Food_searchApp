@@ -8,6 +8,7 @@ import Signup from './Signup';
 import ResetPass from './ResetPass';
 import AnimatePage from './AnimatePage';
 import Main from './Main';
+import Main from './Main';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -18,7 +19,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<AnimatePage><Signin /></AnimatePage>} />
         <Route path="/signup" element={<AnimatePage><Signup /></AnimatePage>} />
         <Route path="/resetpass" element={<AnimatePage><ResetPass /></AnimatePage>} />
-        <Route path="/main" element={<AnimatePage><Main /></AnimatePage>} />
+        <Route path='/main' element={<AnimatePage><Main /></AnimatePage>} />
       </Routes>
     </AnimatePresence>
   );
