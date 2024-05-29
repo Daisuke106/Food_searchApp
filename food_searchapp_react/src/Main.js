@@ -52,7 +52,7 @@ function Main() {
     };
 
     return (
-        <Box className="container">
+        <Box className="container-main">
             <Box className="header2">
                 <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 100 }}>
                     <img src="/images/FOOD_search.jpg" alt="FoodSearch Logo" style={{ width: '120px', height: 'auto' }} />

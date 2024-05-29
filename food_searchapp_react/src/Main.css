@@ -20,19 +20,19 @@
     object-fit: cover;
 }
 
-.container {
+.container-main {
     display: flex;
     flex-direction: column;
     height: auto;
     background-color: bisque;
+    align-items: center;
     padding-bottom: 100px;
 }
 
 .map-container {
     width: 80vw;
     height: 50vh;
-    margin-top: 20px;
-    
+    margin: 20px;
 }
 
 .button-container {
