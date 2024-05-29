@@ -9,7 +9,24 @@ function Main() {
     const [position, setPosition] = useState({ lat: 35.680959106959, lng: 139.76730676352 });
     const notice = useNotice();
     const noticeRef = useRef();
-    const datas = [{ url: "/images/family_food.jpg", name: "店舗1" }, { url: "/images/sample_food.jpg", name: "店舗2" }];
+    const [datas, setDatas] = useState([]);
+
+
+    useEffect(() => {
+        getRestaurantData();
+    }, [])
+
+
+    const getRestaurantData = () => {
+        fetch("http://localhost:8080")
+        .then(res => {
+            res.json()
+            .then(val => {
+                setDatas(val);
+                console.log(val);
+            })
+        }).catch(err => console.log(err));
+    }
 
     const handleLocation = () => {
         noticeRef.current = notice({
