@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { UIProvider } from '@yamada-ui/react';
-// import './App.css';
 import Signin from './Signin';
 import Signup from './Signup';
 import ResetPass from './ResetPass';
