@@ -25,6 +25,7 @@ public class FindRestaurants {
 	// 各初期値の設定
 	@Value("${hotpepper.gourmet.api.key}")
 	private String apiKey;
+
 	private final OkHttpClient client = new OkHttpClient();
 	private final String apiUrl = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
 
