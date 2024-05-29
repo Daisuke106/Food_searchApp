@@ -58,15 +58,67 @@ public class FindRestaurants {
 
 	// 検索するジャンル
 	private String genre; // コードをマスターAPIから取得
+
 	// 検索する予算
 	private String budget; // コードをマスターAPIから取得
 
 	// 検索URLを作成
 	private String baseUrl;
 
+	public void setGenre(String apiKey, String keyword) {
+		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
+		genreUrl += "&keyword=" + keyword;
+		try {
+			Request request = new Request.Builder().url(genreUrl).build();
+			Response response = client.newCall(request).execute();
+			if (response.isSuccessful() && response.body() != null) {
+				String responseBody = response.body().string();
+				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder builder = factory.newDocumentBuilder();
+				Document doc = builder.parse(new ByteArrayInputStream(responseBody.getBytes()));
+				NodeList genreNodes = doc.getElementsByTagName("genre");
+				Element genreElement = (Element) genreNodes.item(0);
+				String genreCode = genreElement.getElementsByTagName("code").item(0).getTextContent();
+
+				// baseUrlにジャンルフィルターを追加
+				baseUrl += "&genre=" + genreCode;
+			}
+		} catch (
+
+		Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setGenre(String apiKey, String keyword[]) {
+		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
+		for (String word : keyword) {
+			genreUrl += "&keyword=" + word;
+		}
+		try {
+			Request request = new Request.Builder().url(genreUrl).build();
+			Response response = client.newCall(request).execute();
+			if (response.isSuccessful() && response.body() != null) {
+				String responseBody = response.body().string();
+				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder builder = factory.newDocumentBuilder();
+				Document doc = builder.parse(new ByteArrayInputStream(responseBody.getBytes()));
+				NodeList genreNodes = doc.getElementsByTagName("genre");
+				for (int i = 0; i < genreNodes.getLength(); i++) {
+					Element genreElement = (Element) genreNodes.item(i);
+					String genreCode = genreElement.getElementsByTagName("code").item(0).getTextContent();
+					// baseUrlにジャンルフィルターを追加
+					baseUrl += "&genre=" + genreCode;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	// デフォルトコンストラクタ(debug用)
 	public FindRestaurants(String apiKey) {
-		// 渋谷を初期値に
+		// 渋谷を初期値に設定
 		location = new HashMap<>();
 		location.put("lat", "35.6581");
 		location.put("lng", "139.7017");
@@ -83,21 +135,12 @@ public class FindRestaurants {
 	}
 
 	// 以降、setterと共にbaseUrlを更新
-
 	public void setNum(int countNum) {
 		this.countNum = countNum;
 	}
 
-	public int getRange() {
-		return range;
-	}
-
 	public void setRange(int range) {
 		this.range = range;
-	}
-
-	public Map<String, String> getLocation() {
-		return location;
 	}
 
 	public void setLocation(Map<String, String> location) {
@@ -109,26 +152,14 @@ public class FindRestaurants {
 		location.put("lng", lng);
 	}
 
-	public String getName_any() {
-		return name_any;
-	}
-
 	public void setName_any(String name_any) {
 		baseUrl += "&name=" + name_any;
 		this.name_any = name_any;
 	}
 
-	public String getKeyword() {
-		return keyword;
-	}
-
 	public void setKeyword(String keyword) {
 		baseUrl += "&keyword=" + keyword;
 		this.keyword = keyword;
-	}
-
-	public String getAddress() {
-		return address;
 	}
 
 	public void setAddress(String address) {
@@ -139,6 +170,30 @@ public class FindRestaurants {
 	// 検索し始めるインデックスの初期値を設定
 	private int startIdx = 1;
 
+	// タグの値を取得する内部メソッド
+	private String getTagValue(String tag, Element element) {
+		NodeList nodeList = element.getElementsByTagName(tag);
+		if (nodeList != null && nodeList.getLength() > 0) {
+			return nodeList.item(0).getTextContent();
+		}
+		return null;
+	}
+
+	// 全角数字を半角数字に変換する内部メソッド
+	private String convertZenkakuToHankaku(String input) {
+		return input.replaceAll("０", "0")
+				.replaceAll("１", "1")
+				.replaceAll("２", "2")
+				.replaceAll("３", "3")
+				.replaceAll("４", "4")
+				.replaceAll("５", "5")
+				.replaceAll("６", "6")
+				.replaceAll("７", "7")
+				.replaceAll("８", "8")
+				.replaceAll("９", "9");
+	}
+
+	// メインとなる検索メソッド
 	public List<HotPepperRestaurant> find() {
 		int findCount = this.countNum;
 		List<HotPepperRestaurant> restaurants = new ArrayList<>();
@@ -199,6 +254,7 @@ public class FindRestaurants {
 								location.put("lng", getTagValue("lng", shopElement));
 								restaurant.setLocation(location);
 
+								// ジャンル情報を取得
 								Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
 								restaurant.setGenre_name(getTagValue("name", genreElement));
 								restaurant.setGenre_catch(getTagValue("catch", genreElement));
@@ -263,26 +319,5 @@ public class FindRestaurants {
 			}
 		}
 		return restaurants;
-	}
-
-	private String getTagValue(String tag, Element element) {
-		NodeList nodeList = element.getElementsByTagName(tag);
-		if (nodeList != null && nodeList.getLength() > 0) {
-			return nodeList.item(0).getTextContent();
-		}
-		return null;
-	}
-
-	private String convertZenkakuToHankaku(String input) {
-		return input.replaceAll("０", "0")
-				.replaceAll("１", "1")
-				.replaceAll("２", "2")
-				.replaceAll("３", "3")
-				.replaceAll("４", "4")
-				.replaceAll("５", "5")
-				.replaceAll("６", "6")
-				.replaceAll("７", "7")
-				.replaceAll("８", "8")
-				.replaceAll("９", "9");
 	}
 }
