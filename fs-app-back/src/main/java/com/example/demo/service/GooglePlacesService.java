@@ -7,11 +7,12 @@ import org.springframework.web.client.RestTemplate;
 public class GooglePlacesService {
 	private String apiKey;
 
-	private final String baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
+	public String baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
 
 	public String getNearbyRestaurants(double lat, double lng) {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = String.format("%s?location=%f,%f&radius=1500&type=restaurant&key=%s", baseUrl, lat, lng, apiKey);
-		return restTemplate.getForObject(url, String.class);
+		String url = String.format("%s?location=%f,%f&radius=1000&type=food&key=%s&opennow=true&minprice=1&maxprice=4", baseUrl, lat, lng, apiKey);
+		String str = restTemplate.getForObject(url, String.class);
+		return str;
 	}
 }
