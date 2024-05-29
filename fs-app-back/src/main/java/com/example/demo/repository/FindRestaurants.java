@@ -216,6 +216,12 @@ public class FindRestaurants {
 		}
 	}
 
+	// 一般的なジャンルをセット
+	public void setGenreDefault() {
+		String[] genreList = { "和食", "洋食", "イタリアン・フレンチ", "中華", "焼肉" };
+		setGenre(genreList);
+	}
+
 	// 予算からフィルター設定する内部メソッド
 	// 設定できる予算コードが2つなため、budgetを最大とした2つの予算コードを追加する仕様を仮実装
 	public void setBudget(int budget) {
