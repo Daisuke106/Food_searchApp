@@ -65,6 +65,7 @@ public class FindRestaurants {
 	// 検索URLを作成
 	private String baseUrl;
 
+	// ジャンルを取得する内部メソッド
 	public void setGenre(String apiKey, String keyword) {
 		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
 		genreUrl += "&keyword=" + keyword;
@@ -90,6 +91,7 @@ public class FindRestaurants {
 		}
 	}
 
+	// 複数ジャンルを取得する内部メソッド
 	public void setGenre(String apiKey, String keyword[]) {
 		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
 		for (String word : keyword) {
@@ -124,7 +126,7 @@ public class FindRestaurants {
 		location.put("lng", "139.7017");
 		formLat = String.format("%.2f", Double.parseDouble(location.get("lat")));
 		formLng = String.format("%.2f", Double.parseDouble(location.get("lng")));
-		countNum = 50;
+		countNum = 10;
 		range = 1;
 		order = 4;
 		baseUrl = apiUrl + "?key=" + apiKey +
