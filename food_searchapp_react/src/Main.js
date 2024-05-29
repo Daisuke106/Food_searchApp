@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, Button } from '@yamada-ui/react';
+import { Box, Button, Grid, GridItem, Card, CardHeader, CardBody, CardFooter } from '@yamada-ui/react';
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
 import Slider from "react-slick";
 import { useNotice } from '@yamada-ui/react';
@@ -68,11 +68,43 @@ function Main() {
             <Box className="button-container">
                 <Button onClick={handleLocation} colorScheme="blue">現在地の取得</Button>
                 <Box className="map-container">
-                    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                    <LoadScript
+                        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                        loadingElement={<div>Loading...</div>}
+                        async={true}
+                        defer={true}
+                    >
                         <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={position} zoom={15}>
                         </GoogleMap>
                     </LoadScript>
+
                 </Box>
+                <Box as="h2" textAlign="center" m="4">
+                    周辺のおすすめ店舗
+                </Box>
+                <Grid templateColumns="repeat(3, 1fr)" gap={6}>
+                    <GridItem>
+                        <Card>
+                            <CardHeader>店舗1</CardHeader>
+                            <CardBody>店舗1の説明</CardBody>
+                            <CardFooter>詳細情報</CardFooter>
+                        </Card>
+                    </GridItem>
+                    <GridItem>
+                        <Card>
+                            <CardHeader>店舗2</CardHeader>
+                            <CardBody>店舗2の説明</CardBody>
+                            <CardFooter>詳細情報</CardFooter>
+                        </Card>
+                    </GridItem>
+                    <GridItem>
+                        <Card>
+                            <CardHeader>店舗3</CardHeader>
+                            <CardBody>店舗3の説明</CardBody>
+                            <CardFooter>詳細情報</CardFooter>
+                        </Card>
+                    </GridItem>
+                </Grid>
             </Box>
         </Box>
     );
