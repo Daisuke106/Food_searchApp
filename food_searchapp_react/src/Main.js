@@ -3,10 +3,7 @@ import { Box, Button } from '@yamada-ui/react';
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
 import Slider from "react-slick";
 import { useNotice } from '@yamada-ui/react';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import './Main.css';
-
+import './Main.css'; // 更新されたCSSファイルのインポート
 
 function Main() {
     const [position, setPosition] = useState({ lat: 35.680959106959, lng: 139.76730676352 });
@@ -55,19 +52,22 @@ function Main() {
     };
 
     return (
-        <Box className="container" display="flex" flexDirection="column" height="100vh" id='MainCS'>
-            <Box className="header2" width="100%" zIndex="1" position="fixed" top="0" backgroundColor="white">
-                <Slider {...sliderSettings} style={{ height: "500px" }}>
+        <Box className="container">
+            <Box className="header2">
+                <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 100 }}>
+                    <img src="/images/FOOD_search.jpg" alt="FoodSearch Logo" style={{ width: '120px', height: 'auto' }} />
+                </div>
+                <Slider {...sliderSettings} className="slider-container">
                     {datas.map(data => (
                         <div key={data.url}>
-                            <img src={data.url} alt={data.name} style={{ width: "100%", height: "500px", objectFit: "cover" }} />
+                            <img src={data.url} alt={data.name} className="slider-image" />
                         </div>
                     ))}
                 </Slider>
             </Box>
-            <Box display="flex" flexDirection="column" paddingTop="360px">
+            <Box className="button-container">
                 <Button onClick={handleLocation} colorScheme="blue">現在地の取得</Button>
-                <Box width="80vw" height="50vh" marginTop="20px">
+                <Box className="map-container">
                     <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
                         <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={position} zoom={15}>
                         </GoogleMap>
