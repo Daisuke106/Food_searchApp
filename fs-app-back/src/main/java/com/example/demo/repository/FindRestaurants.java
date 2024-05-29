@@ -218,7 +218,7 @@ public class FindRestaurants {
 
 	// 一般的なジャンルをセット
 	public void setGenreDefault() {
-		String[] genreList = { "和食", "洋食", "イタリアン・フレンチ", "中華", "焼肉" };
+		String[] genreList = { "和食", "洋食", "イタリアン・フレンチ", "中華", "焼肉", "ラーメン", "お好み焼き・もんじゃ" };
 		setGenre(genreList);
 	}
 
