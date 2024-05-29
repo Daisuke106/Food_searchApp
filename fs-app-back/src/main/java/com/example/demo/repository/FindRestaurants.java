@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,9 +22,6 @@ import okhttp3.Response;
 
 public class FindRestaurants {
 	// 各初期値の設定
-	@Value("${hotpepper.gourmet.api.key}")
-	private String apiKey;
-
 	private final OkHttpClient client = new OkHttpClient();
 	private final String apiUrl = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
 
@@ -69,7 +65,7 @@ public class FindRestaurants {
 	private String baseUrl;
 
 	// デフォルトコンストラクタ(debug用)
-	public FindRestaurants() {
+	public FindRestaurants(String apiKey) {
 		// 渋谷を初期値に
 		location = new HashMap<>();
 		location.put("lat", "35.6581");
