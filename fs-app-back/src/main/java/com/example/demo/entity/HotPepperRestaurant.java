@@ -29,7 +29,7 @@ public class HotPepperRestaurant {
 	// 中エリア
 	private String area_name; //middle_area.name
 	// 店舗の緯度経度
-	private Map<String, String> location;
+	private Map<String, String> location = new HashMap<>();
 	// ジャンル
 	private String genre_name; //genre.name
 	// ジャンルキャッチ

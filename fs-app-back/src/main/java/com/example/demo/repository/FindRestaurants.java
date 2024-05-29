@@ -27,22 +27,20 @@ public class FindRestaurants {
 	private final OkHttpClient client = new OkHttpClient();
 	private final String apiUrl = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
 
-	// 検索する件数の初期値を設定
-	private int countNum = 50;
+	// 検索する件数
+	private int countNum;
 
-	// 検索範囲の初期値を設定
-	private int range = 1;
+	// 検索範囲
+	private int range;
 
-	// 現在地の初期値を設定
-	private double lat = 35.6581;
-	private double lng = 139.7017;
+	// 検索順序（1-3: 距離順, 4: おすすめ順）
+	private int order;
 
-	// 検索順序の初期値を設定（1-3: 距離順, 4: おすすめ順）
-	private int order = 4;
+	// 現在地
+	private Map<String, String> location = new HashMap<>();
 
-	// 現在地のlatとlngを小数点以下2桁までフォーマット
-	private String formLat = String.format("%.2f", lat);
-	private String formLng = String.format("%.2f", lng);
+	private String formLat;
+	private String formLng;
 
 	/*    検索関連の値を設定    */
 
@@ -66,11 +64,25 @@ public class FindRestaurants {
 	private String budget; // コードをマスターAPIから取得
 
 	// 検索URLを作成
-	private String baseUrl = apiUrl + "?key=" + apiKey +
-			"&lat=" + formLat +
-			"&lng=" + formLng +
-			"&range=" + range +
-			"&order=" + order;
+	private String baseUrl;
+
+	// デフォルトコンストラクタ(debug用)
+	public FindRestaurants() {
+		// 渋谷を初期値に
+		location = new HashMap<>();
+		location.put("lat", "35.6581");
+		location.put("lng", "139.7017");
+		formLat = String.format("%.2f", Double.parseDouble(location.get("lat")));
+		formLng = String.format("%.2f", Double.parseDouble(location.get("lng")));
+		countNum = 50;
+		range = 1;
+		order = 4;
+		baseUrl = apiUrl + "?key=" + apiKey +
+				"&lat=" + formLat +
+				"&lng=" + formLng +
+				"&range=" + range +
+				"&order=" + order;
+	}
 
 	// 以降、setterと共にbaseUrlを更新
 
@@ -84,6 +96,19 @@ public class FindRestaurants {
 
 	public void setRange(int range) {
 		this.range = range;
+	}
+
+	public Map<String, String> getLocation() {
+		return location;
+	}
+
+	public void setLocation(Map<String, String> location) {
+		this.location = location;
+	}
+
+	public void setLocation(String lat, String lng) {
+		location.put("lat", lat);
+		location.put("lng", lng);
 	}
 
 	public String getName_any() {
