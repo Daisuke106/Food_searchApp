@@ -27,9 +27,13 @@ public class PlacesController {
     private RestaurantService restaurantService;
 
     @GetMapping("/api/restaurants/all")
-    public List<GooglePlaceRestaurant> getParsedNearbyRestaurants(@RequestParam("lat") double lat, @RequestParam("lng") double lng) throws Exception {
+    public List<GooglePlaceRestaurant> getParsedNearbyRestaurants(@RequestParam("lat") double lat, @RequestParam("lng") double lng,@RequestParam("sort") String sort) throws Exception {
         String response = googlePlacesService.getNearbyRestaurants(lat, lng);
         JSONObject jsonObj = new JSONObject(response);
-        return restaurantService.getAllRestaurants(jsonObj);
+        
+        return restaurantService.getAllRestaurants(jsonObj,sort);
     }
+    
+    
+    
 }
