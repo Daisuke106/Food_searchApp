@@ -13,7 +13,7 @@ import com.example.demo.entity.HotPepperRestaurant;
 import com.example.demo.service.HotPepperService;
 
 @RestController
-@RequestMapping("/api/HPRestaurants")
+@RequestMapping("/api/HPRestaurant")
 public class HPRcontroller {
 
 	@Autowired
