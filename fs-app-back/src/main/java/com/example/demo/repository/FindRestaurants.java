@@ -30,14 +30,30 @@ public class FindRestaurants {
 	// 検索する件数
 	private int countNum;
 
+	public int getCountNum() {
+		return countNum;
+	}
+
 	// 検索範囲
 	private int range;
+
+	public int getRange() {
+		return range;
+	}
 
 	// 検索順序（1-3: 距離順, 4: おすすめ順）
 	private int order;
 
+	public int getOrder() {
+		return order;
+	}
+
 	// 現在地
 	private Map<String, String> location = new HashMap<>();
+
+	public Map<String, String> getLocation() {
+		return location;
+	}
 
 	private String formLat;
 	private String formLng;
@@ -46,10 +62,24 @@ public class FindRestaurants {
 
 	// 検索する名前
 	private String name_any;
+
+	public String getName_any() {
+		return name_any;
+	}
+
 	// 検索するキーワード
 	private String keyword;
+
+	public String getKeyword() {
+		return keyword;
+	}
+
 	// 検索する住所
 	private String address;
+
+	public String getAddress() {
+		return address;
+	}
 
 	// 検索する大エリア
 	private String large_area; // エリアマスタAPIから取得
@@ -61,14 +91,74 @@ public class FindRestaurants {
 	// 検索するジャンル
 	private String genre; // コードをマスターAPIから取得
 
+	public String getGenre() {
+		return genre;
+	}
+
 	// 検索する予算
 	private String budget; // コードをマスターAPIから取得
+
+	public String getbudget() {
+		return budget;
+	}
 
 	// 検索URLを作成
 	private String baseUrl;
 
 	private void addUrl(String key, String value) {
 		baseUrl += "&" + key + "=" + value;
+	}
+
+	// デフォルトコンストラクタ
+	public FindRestaurants(String apiKey) {
+		this.apiKey = apiKey;
+		// 渋谷を初期値に設定
+		location = new HashMap<>();
+		location.put("lat", "35.6581");
+		location.put("lng", "139.7017");
+		formLat = String.format("%.2f", Double.parseDouble(location.get("lat")));
+		formLng = String.format("%.2f", Double.parseDouble(location.get("lng")));
+		countNum = 10;
+		range = 1;
+		order = 4;
+		baseUrl = apiUrl + "?key=" + apiKey +
+				"&lat=" + formLat +
+				"&lng=" + formLng +
+				"&range=" + range +
+				"&order=" + order;
+	}
+
+	// 以降、setterと共にbaseUrlを更新
+	public void setNum(int countNum) {
+		this.countNum = countNum;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public void setLocation(Map<String, String> location) {
+		this.location = location;
+	}
+
+	public void setLocation(String lat, String lng) {
+		location.put("lat", lat);
+		location.put("lng", lng);
+	}
+
+	public void setName_any(String name_any) {
+		baseUrl += "&name=" + name_any;
+		this.name_any = name_any;
+	}
+
+	public void setKeyword(String keyword) {
+		addUrl("keyword", keyword);
+		this.keyword = keyword;
+	}
+
+	public void setAddress(String address) {
+		baseUrl += "&address=" + address;
+		this.address = address;
 	}
 
 	// ジャンルを取得する内部メソッド
@@ -165,61 +255,6 @@ public class FindRestaurants {
 		}
 	}
 
-	// デフォルトコンストラクタ(debug用)
-	public FindRestaurants(String apiKey) {
-		this.apiKey = apiKey;
-		// 渋谷を初期値に設定
-		location = new HashMap<>();
-		location.put("lat", "35.6581");
-		location.put("lng", "139.7017");
-		formLat = String.format("%.2f", Double.parseDouble(location.get("lat")));
-		formLng = String.format("%.2f", Double.parseDouble(location.get("lng")));
-		countNum = 10;
-		range = 1;
-		order = 4;
-		baseUrl = apiUrl + "?key=" + apiKey +
-				"&lat=" + formLat +
-				"&lng=" + formLng +
-				"&range=" + range +
-				"&order=" + order;
-	}
-
-	// 以降、setterと共にbaseUrlを更新
-	public void setNum(int countNum) {
-		this.countNum = countNum;
-	}
-
-	public void setRange(int range) {
-		this.range = range;
-	}
-
-	public void setLocation(Map<String, String> location) {
-		this.location = location;
-	}
-
-	public void setLocation(String lat, String lng) {
-		location.put("lat", lat);
-		location.put("lng", lng);
-	}
-
-	public void setName_any(String name_any) {
-		baseUrl += "&name=" + name_any;
-		this.name_any = name_any;
-	}
-
-	public void setKeyword(String keyword) {
-		addUrl("keyword", keyword);
-		this.keyword = keyword;
-	}
-
-	public void setAddress(String address) {
-		baseUrl += "&address=" + address;
-		this.address = address;
-	}
-
-	// 検索し始めるインデックスの初期値を設定
-	private int startIdx = 1;
-
 	// タグの値を取得する内部メソッド
 	private String getTagValue(String tag, Element element) {
 		NodeList nodeList = element.getElementsByTagName(tag);
@@ -246,6 +281,7 @@ public class FindRestaurants {
 	// メインとなる検索メソッド
 	public List<HotPepperRestaurant> find() {
 		int findCount = this.countNum;
+		int startIdx = 1;
 		List<HotPepperRestaurant> restaurants = new ArrayList<>();
 		boolean moreResults = true;
 
