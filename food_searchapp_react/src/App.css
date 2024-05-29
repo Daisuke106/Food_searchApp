@@ -1,3 +1,15 @@
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
+
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;  /* 他の要素より前面に表示 */
+}
+
+
+
 .App {
   text-align: center;
   display: block;
@@ -144,6 +156,10 @@ button {
 }
 
 .submit-links {
+  margin-top: 20px;
+  /* Adjust the space as needed */
+}
+.confirm-links {
   margin-top: 20px;
   /* Adjust the space as needed */
 }

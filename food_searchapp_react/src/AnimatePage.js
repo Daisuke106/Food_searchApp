@@ -1,6 +1,6 @@
 // AnimatePage.js
 import { motion } from 'framer-motion';
-
+import './App.css';
 const pageVariants = (direction = 'right') => ({
     initial: {
         opacity: 0,

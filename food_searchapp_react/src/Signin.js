@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 // react-router-domのコンポーネントをインポート
 import { Link } from 'react-router-dom';
 // Yamada UIのコンポーネントをインポート
+import './App.css';
 import {
     Box,
     Button,
