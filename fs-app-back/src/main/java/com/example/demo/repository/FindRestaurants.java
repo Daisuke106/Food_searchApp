@@ -25,6 +25,8 @@ public class FindRestaurants {
 	private final OkHttpClient client = new OkHttpClient();
 	private final String apiUrl = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
 
+	private String apiKey;
+
 	// 検索する件数
 	private int countNum;
 
@@ -65,9 +67,14 @@ public class FindRestaurants {
 	// 検索URLを作成
 	private String baseUrl;
 
+	private void addUrl(String key, String value) {
+		baseUrl += "&" + key + "=" + value;
+	}
+
 	// ジャンルを取得する内部メソッド
-	public void setGenre(String apiKey, String keyword) {
+	public void setGenre(String keyword) {
 		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
+		this.genre = keyword;
 		genreUrl += "&keyword=" + keyword;
 		try {
 			Request request = new Request.Builder().url(genreUrl).build();
@@ -82,7 +89,7 @@ public class FindRestaurants {
 				String genreCode = genreElement.getElementsByTagName("code").item(0).getTextContent();
 
 				// baseUrlにジャンルフィルターを追加
-				baseUrl += "&genre=" + genreCode;
+				addUrl("genre", genreCode);
 			}
 		} catch (
 
@@ -92,7 +99,8 @@ public class FindRestaurants {
 	}
 
 	// 複数ジャンルを取得する内部メソッド
-	public void setGenre(String apiKey, String keyword[]) {
+	public void setGenre(String keyword[]) {
+		this.genre = String.join(" ", keyword);
 		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
 		for (String word : keyword) {
 			genreUrl += "&keyword=" + word;
@@ -110,7 +118,7 @@ public class FindRestaurants {
 					Element genreElement = (Element) genreNodes.item(i);
 					String genreCode = genreElement.getElementsByTagName("code").item(0).getTextContent();
 					// baseUrlにジャンルフィルターを追加
-					baseUrl += "&genre=" + genreCode;
+					addUrl("genre", genreCode);
 				}
 			}
 		} catch (Exception e) {
@@ -118,8 +126,48 @@ public class FindRestaurants {
 		}
 	}
 
+	// 予算からフィルター設定する内部メソッド
+	// 設定できる予算コードが2つなため、budgetを最大とした2つの予算コードを追加する仕様を仮実装
+	public void setBudget(int budget) {
+		this.budget = Integer.toString(budget);
+		// 予算コードのマップ
+		Map<String, String> budgetMap = new HashMap<>();
+		budgetMap.put("0-500", "B009");
+		budgetMap.put("501-1000", "B010");
+		budgetMap.put("1001-1500", "B011");
+		budgetMap.put("1501-2000", "B001");
+		budgetMap.put("2001-3000", "B002");
+		budgetMap.put("3001-4000", "B003");
+		budgetMap.put("4001-5000", "B008");
+		budgetMap.put("5001-7000", "B004");
+		budgetMap.put("7001-10000", "B005");
+		budgetMap.put("10001-15000", "B006");
+		budgetMap.put("15001-20000", "B012");
+		budgetMap.put("20001-30000", "B013");
+		budgetMap.put("30001-", "B014");
+
+		// 前のコードが存在するかのチェック用
+		String preCode = null;
+		for (Map.Entry<String, String> entry : budgetMap.entrySet()) {
+			String[] range = entry.getKey().split("-");
+			int lower = range[0].isEmpty() ? 0 : Integer.parseInt(range[0]);
+			int upper = range.length > 1 && !range[1].isEmpty() ? Integer.parseInt(range[1]) : Integer.MAX_VALUE;
+
+			if (budget >= lower && budget <= upper) {
+				String code = entry.getValue();
+				addUrl("budget", code);
+				if (preCode != null) {
+					addUrl("budget", preCode);
+				}
+				break; // マッチした場合はループを抜ける
+			}
+			preCode = entry.getValue();
+		}
+	}
+
 	// デフォルトコンストラクタ(debug用)
 	public FindRestaurants(String apiKey) {
+		this.apiKey = apiKey;
 		// 渋谷を初期値に設定
 		location = new HashMap<>();
 		location.put("lat", "35.6581");
@@ -160,7 +208,7 @@ public class FindRestaurants {
 	}
 
 	public void setKeyword(String keyword) {
-		baseUrl += "&keyword=" + keyword;
+		addUrl("keyword", keyword);
 		this.keyword = keyword;
 	}
 
