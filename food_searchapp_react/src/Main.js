@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Box, Button, Grid, GridItem, Card, CardHeader, CardBody, CardFooter } from '@yamada-ui/react';
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
 import Slider from "react-slick";
