@@ -24,7 +24,7 @@ import okhttp3.Response;
 public class FindRestaurants {
 	// 各初期値の設定
 	@Value("${hotpepper.gourmet.api.key}")
-	private String apiKey = "89ccfea0cc316080";
+	private String apiKey;
 
 	private final OkHttpClient client = new OkHttpClient();
 	private final String apiUrl = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
