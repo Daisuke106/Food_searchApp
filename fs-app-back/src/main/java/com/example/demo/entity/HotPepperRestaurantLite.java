@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import java.util.Map;
 
+// Lite版API取得用
 public class HotPepperRestaurantLite {
 	private int id;
 	private String name;

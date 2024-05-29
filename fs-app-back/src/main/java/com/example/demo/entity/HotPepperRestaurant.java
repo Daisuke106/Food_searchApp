@@ -10,25 +10,51 @@ import java.util.List;
 import java.util.Map;
 
 public class HotPepperRestaurant {
+
+	// APIから取得
+	// 独自のID
 	private String id;
+	// 店舗名
 	private String name;
+	// 店舗名（かな）
 	private String name_kana;
+	// 住所
 	private String address;
+	// 営業時間(全日)
 	private String open;
+	// ロゴ画像URL
 	private String logo_url;
+	// 最寄り駅
 	private String station_name;
+	// 中エリア
 	private String area_name; //middle_area.name
+	// 店舗の緯度経度
 	private Map<String, String> location;
+	// ジャンル
 	private String genre_name; //genre.name
+	// ジャンルキャッチ
 	private String genre_catch;
+	// キャッチコピー
 	private String catch_word;
+	// アクセス
 	private String access;
+	// モバイルアクセス
 	private String mobile_access;
+	// URL
 	private String urls;
+	// 写真URLリスト
 	private List<String> photos;
+	// モバイル写真URLリスト
 	private List<String> mobile_photos;
 
-	private String isOpen;
+	// 個別実装
+	// 開店確認用
+	private boolean isOpen;
+
+	// 各曜日の営業時間
+	private Map<String, String[]> openSchedule;
+
+	// 本日の営業時間
 	private String todayOpen;
 
 	public HotPepperRestaurant() {
@@ -171,7 +197,15 @@ public class HotPepperRestaurant {
 		this.mobile_photos = mobile_photos;
 	}
 
-	public String getIsOpen() {
+	public Map<String, String[]> getOpenSchedule() {
+		return openSchedule;
+	}
+
+	public void setOpenSchedule(Map<String, String[]> openSchedule) {
+		this.openSchedule = openSchedule;
+	}
+
+	public boolean getIsOpen() {
 		return isOpen;
 	}
 
@@ -180,163 +214,158 @@ public class HotPepperRestaurant {
 	}
 
 	private void OpenCheck() {
-		String openHours = this.open.replaceAll("（.*?）", "").trim();
+		try {
+			String openHours = this.open.replaceAll("（.*?）", "").trim();
 
-		// 正規表現パターンを作成し文字列を整形
-		String regex = "(?<=.)(?<![、～祝前 ])(?=[月火水木金土日祝])";
-		openHours = openHours.replaceAll(regex, " ");
+			// 正規表現パターンを作成し文字列を整形
+			String regex = "(?<=.)(?<![、～祝前 ])(?=[月火水木金土日祝])";
+			openHours = openHours.replaceAll(regex, " ");
 
-		// 現在の曜日と時刻を取得
-		LocalDateTime now = LocalDateTime.now();
-		String currentDayOfWeek = now.getDayOfWeek().toString();
-		LocalTime currentTime = now.toLocalTime();
-		// 曜日を日本語に変換
-		Map<String, String> dayOfWeekMap = new HashMap<>();
-		dayOfWeekMap.put("MONDAY", "月");
-		dayOfWeekMap.put("TUESDAY", "火");
-		dayOfWeekMap.put("WEDNESDAY", "水");
-		dayOfWeekMap.put("THURSDAY", "木");
-		dayOfWeekMap.put("FRIDAY", "金");
-		dayOfWeekMap.put("SATURDAY", "土");
-		dayOfWeekMap.put("SUNDAY", "日");
+			// 現在の曜日と時刻を取得
+			LocalDateTime now = LocalDateTime.now();
+			String currentDayOfWeek = now.getDayOfWeek().toString();
+			LocalTime currentTime = now.toLocalTime();
+			// 曜日を日本語に変換
+			Map<String, String> dayOfWeekMap = new HashMap<>();
+			dayOfWeekMap.put("MONDAY", "月");
+			dayOfWeekMap.put("TUESDAY", "火");
+			dayOfWeekMap.put("WEDNESDAY", "水");
+			dayOfWeekMap.put("THURSDAY", "木");
+			dayOfWeekMap.put("FRIDAY", "金");
+			dayOfWeekMap.put("SATURDAY", "土");
+			dayOfWeekMap.put("SUNDAY", "日");
 
-		String currentDay = dayOfWeekMap.get(currentDayOfWeek);
+			String currentDay = dayOfWeekMap.get(currentDayOfWeek);
 
-		// 曜日配列の作成
-		String[] daysOfWeek = { "月", "火", "水", "木", "金", "土", "日" };
-		//
-		//		System.out.println("openHours: " + openHours);
-		// スケジュールを解析してマップに格納
-		Map<String, String[]> scheduleMap = new HashMap<>();
-		String[] dayTimePairs = openHours.split(" (?=\\S+?: \\d{1,2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})");
-		//		for (String s : dayTimePairs) {
-		//			System.out.println("Pairs: " + s);
-		//		}
-		for (String pair : dayTimePairs) {
-			try {
-				//曜日と時間を分割
-				String[] dayAndTimes = pair.split(": ");
-				//				System.out.println("dayAndTimes:[0]: " + dayAndTimes[0]);
-				//				System.out.println("dayAndTimes:[1]: " + dayAndTimes[1]);
-				//曜日が時間が2パターン以上ある場合分割して格納
-				String[] splitDays = dayAndTimes[0].split("、");
-				//営業時間が2パターン以上ある場合分割して格納
-				String[] timeRanges = dayAndTimes[1].split(" ");
+			// 曜日配列の作成
+			String[] daysOfWeek = { "月", "火", "水", "木", "金", "土", "日" };
 
-				//例外処理_1
-				List<String> timeTempList = new ArrayList<>();
-				for (String times : timeRanges) {
-					String[] timeTmpAry = times
-							.split("(?<=\\d{2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})(?=\\d{2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})");
-					for (String time : timeTmpAry) {
-						timeTempList.add(time);
+			// スケジュールを解析してマップに格納
+			Map<String, String[]> scheduleMap = new HashMap<>();
+			String[] dayTimePairs = openHours.split(" (?=\\S+?: \\d{1,2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})");
+
+			for (String pair : dayTimePairs) {
+				try {
+					// 曜日と時間を分割
+					String[] dayAndTimes = pair.split(": ");
+					String[] splitDays = dayAndTimes[0].split("、");
+					String[] timeRanges = dayAndTimes[1].split(" ");
+
+					// 営業時間が2パターン以上ある場合分割して格納
+					List<String> timeTempList = new ArrayList<>();
+					for (String times : timeRanges) {
+						String[] timeTmpAry = times.split(
+								"(?<=\\d{2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})(?=\\d{2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})");
+						for (String time : timeTmpAry) {
+							timeTempList.add(time);
+						}
 					}
+					String[] splitTimeRanges = timeTempList.toArray(new String[0]);
+
+					// splitDaysに格納されている、祝日、祝前日を削除
+					List<String> daysTmpList = new ArrayList<>(Arrays.asList(splitDays));
+					daysTmpList.removeIf(s -> s.equals("祝日"));
+					daysTmpList.removeIf(s -> s.equals("祝前日"));
+					splitDays = daysTmpList.toArray(new String[0]);
+
+					for (String days : splitDays) {
+						if (days.contains("～")) {
+							String[] dayRange = days.split("～");
+							String startDay = dayRange[0];
+							String endDay = dayRange[1];
+							boolean inRange = false;
+							for (String day : daysOfWeek) {
+								if (day.equals(startDay)) {
+									inRange = true;
+								}
+								if (inRange) {
+									scheduleMap.put(day, splitTimeRanges);
+								}
+								if (day.equals(endDay)) {
+									break;
+								}
+							}
+						} else {
+							scheduleMap.put(days, splitTimeRanges);
+						}
+						setOpenSchedule(scheduleMap);
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					System.out.println("スケジュールの解析中にエラーが発生しました: " + pair);
+					System.out.println("openHours: " + openHours);
+				} catch (Exception e) {
+					System.out.println("予期しないエラーが発生しました: " + e.getMessage());
+					e.printStackTrace();
 				}
-				String[] splitTimeRanges = timeTempList.toArray(new String[0]);
+			}
 
-				// splitDaysに格納されている、祝日、祝前日を削除
-				// 配列をリストに変換
-				List<String> daysTmpList = new ArrayList<>(Arrays.asList(splitDays));
-				// リストから特定の文字列を削除
-				daysTmpList.removeIf(s -> s.equals("祝日"));
-				daysTmpList.removeIf(s -> s.equals("祝前日"));
-				// リストを再び配列に変換
-				splitDays = daysTmpList.toArray(new String[0]);
+			// 現在の曜日に対応する時間範囲を取得してチェック
+			String[] splitTimeRanges = scheduleMap.get(currentDay);
 
-				for (String days : splitDays) {
-					if (days.contains("～")) {
-						//						System.out.println("days: " + days);
-						String[] dayRange = days.split("～");
-						String startDay = dayRange[0];
-						//						System.out.println("startDay: " + startDay);
-						String endDay = dayRange[1];
-						//						System.out.println("endDay: " + endDay);
-						boolean inRange = false;
-						for (String day : daysOfWeek) {
-							if (day.equals(startDay)) {
-								inRange = true;
-							}
-							if (inRange) {
-								scheduleMap.put(day, splitTimeRanges);
-								//								System.out.println("put: " + day);
-							}
-							if (day.equals(endDay)) {
-								break;
-							}
+			if (splitTimeRanges == null) {
+				this.isOpen = false;
+				return;
+			}
+
+			boolean isWithinSchedule = false;
+			for (String timeRange : splitTimeRanges) {
+				try {
+					String[] times = timeRange.split("～");
+					LocalTime startTime = LocalTime.parse(times[0], DateTimeFormatter.ofPattern("H:mm"));
+					LocalTime endTime;
+					if (times[1].startsWith("翌")) {
+						endTime = LocalTime.parse(times[1].substring(1), DateTimeFormatter.ofPattern("H:mm"));
+						endTime = endTime.plusHours(24); // 翌日の時間に変換
+					} else {
+						endTime = LocalTime.parse(times[1], DateTimeFormatter.ofPattern("H:mm"));
+					}
+
+					this.todayOpen = startTime.toString() + "～" + endTime.toString();
+
+					if (startTime.isBefore(endTime)) {
+						// 通常の場合
+						if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+							isWithinSchedule = true;
+							break;
 						}
 					} else {
-						scheduleMap.put(days, splitTimeRanges);
+						// 翌日にまたがる場合
+						if (currentTime.isAfter(startTime) || currentTime.isBefore(endTime.minusHours(24))) {
+							isWithinSchedule = true;
+							break;
+						}
 					}
+				} catch (Exception e) {
+					System.out.println("時間範囲の解析中にエラーが発生しました: " + timeRange);
+					e.printStackTrace();
 				}
-			} catch (ArrayIndexOutOfBoundsException e) {
-				System.out.println("スケジュールの解析中にエラーが発生しました: " + pair);
-				System.out.println("openHours: " + openHours);
 			}
+
+			this.isOpen = isWithinSchedule;
+
+		} catch (Exception e) {
+			System.out.println("OpenCheckメソッドで予期しないエラーが発生しました: " + e.getMessage());
+			e.printStackTrace();
+			this.isOpen = false;
 		}
+	}
 
-		/* ----------------------------- debug用 ----------------------------- */
-
-		// スケジュールの表示
-		//	System.out.println("スケジュール:");
-		//	for (Map.Entry<String, String[]> entry : scheduleMap.entrySet()) {
-		//		String day = entry.getKey();
-		//		String[] timeRanges = entry.getValue();
-		//		System.out.print(day + ": ");
-		//		for (String timeRange : timeRanges) {
-		//			System.out.print(timeRange + " ");
-		//		}
-		//		System.out.println();
-		//	}
-		//	System.out.println("---------------------------------------------");
-
-		/* ----------------------------- debug用 ----------------------------- */
-
-		// 現在の曜日に対応する時間範囲を取得してチェック
-		String[] splitTimeRanges = scheduleMap.get(currentDay);
-
-		if (splitTimeRanges == null) {
-			this.isOpen = "false";
-		}
-
-		boolean isWithinSchedule = false;
-		for (String timeRange : splitTimeRanges) {
-			try {
-				String[] times = timeRange.split("～");
-				LocalTime startTime = LocalTime.parse(times[0], DateTimeFormatter.ofPattern("H:mm"));
-				LocalTime endTime;
-				if (times[1].startsWith("翌")) {
-					endTime = LocalTime.parse(times[1].substring(1), DateTimeFormatter.ofPattern("H:mm"));
-					endTime = endTime.plusHours(24); // 翌日の時間に変換
-				} else {
-					endTime = LocalTime.parse(times[1], DateTimeFormatter.ofPattern("H:mm"));
+	public void showDetail() {
+		System.out.println("name: " + name);
+		System.out.println("address: " + address);
+		System.out.println("location: " + location);
+		for (String day : openSchedule.keySet()) {
+			System.out.print(day + ": ");
+			String[] timeRanges = openSchedule.get(day);
+			for (int i = 0; i < timeRanges.length; i++) {
+				System.out.print(timeRanges[i]);
+				if (i < timeRanges.length - 1) {
+					System.out.print(", ");
 				}
-
-				//				System.out.println("チェックする時間範囲: " + startTime + " ～ " + endTime);
-				this.todayOpen = startTime.toString() + "～" + endTime.toString();
-
-				if (startTime.isBefore(endTime)) {
-					// 通常の場合
-					if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
-						isWithinSchedule = true;
-						break;
-					}
-				} else {
-					// 翌日にまたがる場合
-					if (currentTime.isAfter(startTime) || currentTime.isBefore(endTime.minusHours(24))) {
-						isWithinSchedule = true;
-						break;
-					}
-				}
-			} catch (Exception e) {
-				System.out.println("時間範囲の解析中にエラーが発生しました: " + timeRange);
 			}
+			System.out.println();
 		}
-
-		if (isWithinSchedule) {
-			this.isOpen = "true";
-		} else {
-			this.isOpen = "false";
-		}
-
+		System.out.println("todayOpen: " + todayOpen);
+		System.out.println("---------------------------------------------------------------");
 	}
 }

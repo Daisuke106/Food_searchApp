@@ -1,13 +1,10 @@
 package com.example.demo.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public class GooglePlacesService {
-
-	@Value("${hotpepper.gourmet.api.key}")
 	private String apiKey;
 
 	private final String baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
