@@ -31,6 +31,9 @@ import AnimatePage from './AnimatePage';
 // ImageFadeコンポーネントは、画像をフェードイン/フェードアウトするために使用される
 import ImageFade from './ImageFade';
 
+// ページ遷移用
+import { useNavigate } from 'react-router-dom';
+
 // ロゴ画像のパスを定義
 // ロゴ画像は、public/imagesディレクトリに配置されている
 const logoImage = process.env.PUBLIC_URL + '/images/FOOD_search.jpg';
@@ -65,6 +68,7 @@ function Signin() {
         "https://dragon-ball-official.com/assets/img/intro/intro_4.png",
         "/images/sample_food.jpg"
     ];
+    const navigate = useNavigate();
 
     // useEffectフックを使用して、コンポーネントがマウントされたときに処理を実行
     useEffect(() => {
@@ -126,10 +130,12 @@ function Signin() {
                 body: JSON.stringify({ name: userID, password })
             });
 
+            // ログイン成功時の処理
             if (response.ok) {
                 const data = await response.json();
+                localStorage.setItem("user", JSON.stringify(data));
                 console.log('認証成功:', data);
-                // ログイン成功時の処理
+                navigate('/main');
             } else {
                 const errorData = await response.json();
                 setErrorMessage(errorData.error || 'ログインに失敗しました。');
