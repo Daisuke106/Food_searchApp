@@ -9,14 +9,19 @@
     z-index: 1;
     background-color: white;
 }
+.card {
+    background-color: white;
+}
 
 .slider-container {
-    height: 100px; /* スライダーの外枠の高さ */
+    height: 100px;
+    /* スライダーの外枠の高さ */
 }
 
 .slider-image {
     width: 100%;
-    height: 800px; /* 画像の高さ */
+    height: 800px;
+    /* 画像の高さ */
     object-fit: cover;
 }
 
@@ -24,10 +29,13 @@
     display: flex;
     flex-direction: column;
     height: auto;
-    background-color: bisque;
     align-items: center;
-    padding-bottom: 100px;
+    background-image: url('./../public/images/ui/haikei_pc.png'); /* Update this path with your image */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
+
 
 .map-container {
     width: 80vw;
@@ -39,5 +47,162 @@
 }
 
 .button-container {
-    padding-top: 750px; /* スライダーとの間隔 */
+    padding-top: 750px;
+    /* スライダーとの間隔 */
+}
+
+
+.card-full {
+    height: 100%; /* CardがGridItemの高さを完全に埋めるように設定 */
+    display: flex;
+    flex-direction: column; /* 子要素を縦方向に配置 */
+}
+
+.card-image {
+    flex-grow: 1; /* 画像がカード内の利用可能なスペースを全て埋めるように設定 */
+    width: 100%; /* 画像の幅をカードの幅に合わせる */
+    object-fit: cover; /* 画像がアスペクト比を保持しつつ、要素のボックスに合わせてサイズ調整 */
+}
+
+
+.grid-background {
+    background-color: lightgreen;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.scroll-container {
+    overflow-x: auto;
+    padding: 30px;
+    /* スクロールコンテナの内側のパディング */
+    margin-bottom: 30px;
+    display: flex;
+    overflow-x: scroll;
+}
+
+.grid-background2 {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 80vw; /* これがGridItemの幅を指定します */
+    height: 50vh; /* これがGridItemの高さを指定します */
+    background-color: lightblue;
+    padding: 35px;
+    border-radius: 5px;
+}
+
+.card-full {
+    height: 100%; /* CardがGridItemの高さを完全に埋めるように設定 */
+    display: flex;
+    flex-direction: column; /* 子要素を縦方向に配置 */
+}
+
+.card-image {
+    flex-grow: 1; /* 画像がカード内の利用可能なスペースを全て埋めるように設定 */
+    width: 100%; /* 画像の幅をカードの幅に合わせる */
+    object-fit: cover; /* 画像がアスペクト比を保持しつつ、要素のボックスに合わせてサイズ調整 */
+}
+
+
+.scroll-item {
+    display: inline-block;
+    width: 150px;
+    /* 各アイテムの幅を指定 */
+    position: relative;
+    margin-right: 10px;
+    /* アイテム間のスペース */
+}
+
+.scroll-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    /* 画像がアイテムのサイズに合わせて調整されるように */
+}
+
+.scroll-text {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.5);
+    /* テキストの背景を半透明に */
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
+/* フッターのスタイル調整 */
+.footer-container {
+    width: 100%;
+    display: flex;
+    justify-content: center; /* 中央揃え */
+    align-items: center; /* 垂直中央揃え */
+    padding: 20px; /* パディングを調整 */
+    background-color: skyblue; /* フッターの背景色も白に */
+}
+
+.footer-image {
+    width: 10%; /* 画像のサイズを10%に調整 */
+    height: auto;
+}
+
+@media (max-width: 768px) {
+
+
+    .grid-background {
+        grid-template-columns: 1fr; /* 1列に設定 */
+    }
+
+    .features-container {
+        grid-template-columns: repeat(2, 1fr); /* 2列に設定 */
+    }
+
+    .scroll-container {
+        flex-direction: column; /* アイテムを縦方向に並べる */
+        align-items: center; /* アイテムを中央揃え */
+    }
+
+
+
+    .scroll-item {
+        width: 100%; /* アイテムの幅を100%に設定 */
+        margin-right: 0; /* 右の余白をなくす */
+        margin-bottom: 20px; /* 下の余白を設定 */
+    }
+
+    .map-container,
+    .features-container {
+        width: 95vw;
+        /* ビューポートの幅に応じてサイズ調整 */
+        margin: 10px auto;
+        /* 中央揃え */
+    }
+
+    .features-container .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2列レイアウトにする */
+    }
+
+    .grid-item {
+        margin-bottom: 10px; /* ボタン間のスペースを設定 */
+    }
+}
+
+@media (min-width: 769px) {
+
+    .map-container,
+    .features-container {
+        width: 80vw;
+        /* デスクトップでの幅調整 */
+        margin: 20px auto;
+        /* 中央揃え */
+    }
+
+    .features-container .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2列レイアウトにする */
+    }
+
+    .grid-item {
+        margin-bottom: 10px; /* ボタン間のスペースを設定 */
+    }
 }
