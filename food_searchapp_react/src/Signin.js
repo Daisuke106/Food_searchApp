@@ -58,10 +58,11 @@ function Signin() {
     // 画像のリストを定義
     const images = [
         "/images/food_gurume.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_1.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_2.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_3.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_4.png",
+        "/images/free_food/allcake.jpg",
+        "/images/free_food/beer.jpg",
+        "/images/free_food/breadtea.jpg",
+        "/images/free_food/humberger.jpg",
+        "/images/free_food/pancake.jpg",
         "/images/sample_food.jpg"
     ];
 
