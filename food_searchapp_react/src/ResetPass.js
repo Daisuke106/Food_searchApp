@@ -24,6 +24,7 @@ import './App.css';
 // ロゴ画像のパスを定義
 const logoImage = process.env.PUBLIC_URL + '/images/FOOD_search.jpg';
 
+
 // ResetPassコンポーネントを定義
 function ResetPass() {
     // useNavigateフックを使用して、ナビゲーション関数を取得
@@ -225,6 +226,7 @@ function ResetPass() {
             </Modal>
         </div>
     );
+
 }
 
 export default ResetPass;

@@ -17,7 +17,24 @@ function Main() {
     const notice = useNotice();
     const { page } = useLoading();
     const noticeRef = useRef();
-    const datas = [{ url: "/images/family_food.jpg", name: "店舗1" }, { url: "/images/sample_food.jpg", name: "店舗2" }];
+    const [datas, setDatas] = useState([]);
+
+
+    useEffect(() => {
+        getRestaurantData();
+    }, [])
+
+
+    const getRestaurantData = () => {
+        fetch("http://localhost:8080")
+        .then(res => {
+            res.json()
+            .then(val => {
+                setDatas(val);
+                console.log(val);
+            })
+        }).catch(err => console.log(err));
+    }
 
     const openShopModal = () => setShopModalOpen(true);
     const closeShopModal = () => setShopModalOpen(false);
