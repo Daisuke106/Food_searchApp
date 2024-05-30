@@ -206,3 +206,16 @@
         margin-bottom: 10px; /* ボタン間のスペースを設定 */
     }
 }
+
+.full-screen-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;  /* 白色の背景 */
+    z-index: 100000;  /* 必要に応じてz-indexを高く設定 */
+}

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Box, Button, Grid, GridItem, Card, CardHeader, CardBody, CardFooter,
     useNotice, Loading, Modal, ModalOverlay, ModalHeader, ModalCloseButton,
@@ -8,33 +8,40 @@ import {
 import { LoadScript, GoogleMap, MarkerF } from "@react-google-maps/api";
 import Slider from "react-slick";
 import './Main.css';
+import { Player as LottiePlayer } from '@lottiefiles/react-lottie-player';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Main() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [shopModalOpen, setShopModalOpen] = useState(false); // State to control the shop modal
     const [position, setPosition] = useState({ lat: 35.680959106959, lng: 139.76730676352 });
-    
+
+    useEffect(() => {
+        // Automatically fade out the animation after 3 seconds
+        const timer = setTimeout(() => {
+            setAnimationVisible(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, []);
+
     const notice = useNotice();
     const { page } = useLoading();
     const noticeRef = useRef();
-    const [datas, setDatas] = useState([]);
+    const [animationVisible, setAnimationVisible] = useState(true);
+    const datas = [{ url: "/images/family_food.jpg", name: "店舗1" }, { url: "/images/sample_food.jpg", name: "店舗2" }];
 
 
-    useEffect(() => {
-        getRestaurantData();
-    }, [])
 
-
-    const getRestaurantData = () => {
-        fetch("http://localhost:8080")
-        .then(res => {
-            res.json()
-            .then(val => {
-                setDatas(val);
-                console.log(val);
-            })
-        }).catch(err => console.log(err));
-    }
+    // const getRestaurantData = () => {
+    //     fetch("http://localhost:8080")
+    //     .then(res => {
+    //         res.json()
+    //         .then(val => {
+    //             setDatas(val);
+    //             console.log(val);
+    //         })
+    //     }).catch(err => console.log(err));
+    // }
 
     const openShopModal = () => setShopModalOpen(true);
     const closeShopModal = () => setShopModalOpen(false);
@@ -130,6 +137,25 @@ function Main() {
 
     return (
         <Box className="container-main">
+            <AnimatePresence>
+                {animationVisible && (
+                    <motion.div
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1 }}
+                        className="full-screen-container"
+                    >
+                        <LottiePlayer
+                            src="https://lottie.host/004ee795-3c08-4a26-81c0-83bdcb217796/aUF19q2JRc.json"
+                            background="transparent"
+                            speed={1}
+                            style={{ width: '70%', height: '70%' }}
+                            autoplay
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <Box className="header2">
                 <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 100 }}>
                     <img src="/images/FOOD_search.jpg" alt="FoodSearch Logo" onClick={(e) => { e.stopPropagation(); onOpen(); }} style={{ width: '120px', height: 'auto', cursor: 'pointer' }} />
@@ -295,6 +321,7 @@ function Main() {
 
 
         </Box>
+
     );
 }
 
