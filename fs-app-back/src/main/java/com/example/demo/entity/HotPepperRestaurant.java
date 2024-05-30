@@ -57,9 +57,11 @@ public class HotPepperRestaurant {
 	// 本日の営業時間
 	private String todayOpen;
 
+	// コンストラクタ
 	public HotPepperRestaurant() {
 	}
 
+	// ゲッター、セッター
 	public String getId() {
 		return id;
 	}
@@ -213,8 +215,10 @@ public class HotPepperRestaurant {
 		return todayOpen;
 	}
 
+	// 営業時間文字列を正規化し、各曜日と営業時間を整形、取得
 	private void OpenCheck() {
 		try {
+			// 営業時間の文字列からL.O.などの記述を削除
 			String openHours = this.open.replaceAll("（.*?）", "").trim();
 
 			// 正規表現パターンを作成し文字列を整形
@@ -225,6 +229,7 @@ public class HotPepperRestaurant {
 			LocalDateTime now = LocalDateTime.now();
 			String currentDayOfWeek = now.getDayOfWeek().toString();
 			LocalTime currentTime = now.toLocalTime();
+
 			// 曜日を日本語に変換
 			Map<String, String> dayOfWeekMap = new HashMap<>();
 			dayOfWeekMap.put("MONDAY", "月");
@@ -240,10 +245,13 @@ public class HotPepperRestaurant {
 			// 曜日配列の作成
 			String[] daysOfWeek = { "月", "火", "水", "木", "金", "土", "日" };
 
-			// スケジュールを解析してマップに格納
+			// 曜日と時間のペアを格納するMap
 			Map<String, String[]> scheduleMap = new HashMap<>();
+
+			// 曜日と時間のペアを分割
 			String[] dayTimePairs = openHours.split(" (?=\\S+?: \\d{1,2}:\\d{2}～(?:翌)?\\d{1,2}:\\d{2})");
 
+			// 曜日と時間を分割
 			for (String pair : dayTimePairs) {
 				try {
 					// 曜日と時間を分割
@@ -260,6 +268,8 @@ public class HotPepperRestaurant {
 							timeTempList.add(time);
 						}
 					}
+
+					// splitTimeRangesに格納されている、時間範囲を取得
 					String[] splitTimeRanges = timeTempList.toArray(new String[0]);
 
 					// splitDaysに格納されている、祝日、祝前日を削除
@@ -268,11 +278,18 @@ public class HotPepperRestaurant {
 					daysTmpList.removeIf(s -> s.equals("祝前日"));
 					splitDays = daysTmpList.toArray(new String[0]);
 
+					// 曜日と時間のペアを格納
 					for (String days : splitDays) {
+
+						//  "～"が含まれている場合の処理
 						if (days.contains("～")) {
+							// "～"で分割
 							String[] dayRange = days.split("～");
+							// 開始日と終了日を取得
 							String startDay = dayRange[0];
 							String endDay = dayRange[1];
+
+							// 開始日から終了日までの曜日を格納
 							boolean inRange = false;
 							for (String day : daysOfWeek) {
 								if (day.equals(startDay)) {
@@ -286,10 +303,13 @@ public class HotPepperRestaurant {
 								}
 							}
 						} else {
+							// "～"が含まれていない場合
 							scheduleMap.put(days, splitTimeRanges);
 						}
+						// すべての曜日に対して時間範囲を格納
 						setOpenSchedule(scheduleMap);
 					}
+					// 例外処理
 				} catch (ArrayIndexOutOfBoundsException e) {
 					System.out.println("スケジュールの解析中にエラーが発生しました: " + pair);
 					System.out.println("openHours: " + openHours);
@@ -302,6 +322,7 @@ public class HotPepperRestaurant {
 			// 現在の曜日に対応する時間範囲を取得してチェック
 			String[] splitTimeRanges = scheduleMap.get(currentDay);
 
+			// splitTimeRangesがnullの場合はisOpenをfalseに設定
 			if (splitTimeRanges == null) {
 				this.isOpen = false;
 				return;
@@ -350,6 +371,8 @@ public class HotPepperRestaurant {
 		}
 	}
 
+	// 出力確認用
+	// 店舗情報の一部（名前、住所、緯度経度、曜日毎の営業時間、今日の営業時間）を表示
 	public void showDetail() {
 		System.out.println("name: " + name);
 		System.out.println("address: " + address);
