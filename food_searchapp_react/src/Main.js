@@ -3,7 +3,7 @@ import {
     Box, Button, Grid, GridItem, Card, CardHeader, CardBody, CardFooter,
     useNotice, Loading, Modal, ModalOverlay, ModalHeader, ModalCloseButton,
     ModalBody, ModalFooter, Input, useDisclosure, FormControl, Label,
-    Drawer, DrawerOverlay, DrawerCloseButton, DrawerHeader, DrawerBody, DrawerFooter, useLoading
+    Drawer, DrawerOverlay, DrawerCloseButton, DrawerHeader, DrawerBody, DrawerFooter, useLoading, NativeSelect, NativeOption
 } from '@yamada-ui/react';
 import { LoadScript, GoogleMap, MarkerF } from "@react-google-maps/api";
 import Slider from "react-slick";
@@ -13,6 +13,7 @@ function Main() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [shopModalOpen, setShopModalOpen] = useState(false); // State to control the shop modal
     const [position, setPosition] = useState({ lat: 35.680959106959, lng: 139.76730676352 });
+    
     const notice = useNotice();
     const { page } = useLoading();
     const noticeRef = useRef();
@@ -23,14 +24,24 @@ function Main() {
 
     const handleSearch = async () => {
         try {
-            page.start({ message: "Searching...", duration: 5000 });
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Simulate fetching data
+            page.start({ message: "Searching...", duration: 2000 });
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate fetching data
             // Here you would typically handle the transition to another screen or state
             alert("Transition to new screen or update state here.");
         } finally {
             page.finish();
         }
     };
+
+    const categorySearch = async (category) => {
+        try {
+            console.log("Searching for:", category);
+            page.start({ message: "Searching...", duration: 5000 });
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Simulate fetching data
+        } finally {
+            page.finish();
+        }
+    }
 
     const bannerData = [
         { url: "/images/free_food/beer.jpg", name: "バナー1" },
@@ -69,6 +80,26 @@ function Main() {
             }
         );
     };
+
+    const options = [
+        { label: "居酒屋", value: "cat1" },
+        { label: "ダイニングバー・バル", value: "cat2" },
+        { label: "創作料理", value: "cat3" },
+        { label: "和食", value: "cat4" },
+        { label: "洋食", value: "cat5" },
+        { label: "イタリアン・フレンチ", value: "cat6" },
+        { label: "中華", value: "cat7" },
+        { label: "焼肉", value: "cat8" },
+        { label: "韓国料理", value: "cat9" },
+        { label: "アジア・エスニック料理", value: "cat10" },
+        { label: "各国料理", value: "cat11" },
+        { label: "カラオケ・パーティー", value: "cat14" },
+        { label: "バー・カクテル", value: "cat15" },
+        { label: "ラーメン", value: "cat16" },
+        { label: "お好み焼き・もんじゃ", value: "cat17" },
+        { label: "カフェ・スイーツ", value: "cat18" },
+        { label: "その他グルメ", value: "cat19" }
+    ];
 
     const sliderSettings = {
         dots: true,
@@ -129,27 +160,28 @@ function Main() {
                     周辺のおすすめ店舗
                 </Box>
                 <Grid className='grid-background' templateColumns="repeat(3, 1fr)" gap={6}>
-                    <GridItem>
-                        <Card className='card'>
-                            <CardHeader>店舗1</CardHeader>
-                            <CardBody>店舗1の説明</CardBody>
-                            <CardFooter>詳細情報</CardFooter>
-                        </Card>
-                    </GridItem>
-                    <GridItem>
-                        <Card className='card'>
-                            <CardHeader>店舗2</CardHeader>
-                            <CardBody>店舗2の説明</CardBody>
-                            <CardFooter>詳細情報</CardFooter>
-                        </Card>
-                    </GridItem>
-                    <GridItem>
-                        <Card className='card'>
-                            <CardHeader>店舗3</CardHeader>
-                            <CardBody>店舗3の説明</CardBody>
-                            <CardFooter>詳細情報</CardFooter>
-                        </Card>
-                    </GridItem>
+                    {options.map((option, index) => (
+                        <GridItem key={index}>
+                            <Card className='card'>
+                                <Box p="4">
+                                    <NativeSelect
+                                        placeholder="Select category"
+                                        onChange={(e) => categorySearch(e.target.value)}
+                                        defaultValue=""
+                                    >
+                                        <NativeOption value="">Select an option</NativeOption>
+                                        {options.map(option => (
+                                            <NativeOption key={option.value} value={option.value}>{option.label}</NativeOption>
+                                        ))}
+                                    </NativeSelect>
+                                    <Button onClick={() => categorySearch(option.value)} mt="2" colorScheme="blue">Search</Button>
+                                </Box>
+                                <CardHeader>{`店舗${index + 1}`}</CardHeader>
+                                <CardBody>{`${option.label}の説明`}</CardBody>
+                                <CardFooter>詳細情報</CardFooter>
+                            </Card>
+                        </GridItem>
+                    ))}
                     <Grid templateColumns="repeat(2, 1fr)" gap="2" id='near-buttons'>
                         <GridItem colSpan={3} textAlign="center">
                             <Button colorScheme="blue" w="full">もっと見る</Button>
@@ -206,8 +238,8 @@ function Main() {
                                     </Grid>
                                 </ModalBody>
                                 <ModalFooter>
-                                <Button colorScheme="blue" mr={3} onClick={handleSearch}>検索</Button>
-          <Button variant="ghost" onClick={closeShopModal}>閉じる</Button>
+                                    <Button colorScheme="blue" mr={3} onClick={handleSearch}>検索</Button>
+                                    <Button variant="ghost" onClick={closeShopModal}>閉じる</Button>
                                 </ModalFooter>
                             </Modal>
                         </GridItem>
