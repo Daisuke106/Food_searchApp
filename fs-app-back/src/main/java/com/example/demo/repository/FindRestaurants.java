@@ -416,122 +416,109 @@ public class FindRestaurants {
 
 	// メインとなる検索メソッド
 	public List<HotPepperRestaurant> findAll() {
-			int startIdx = 1;
-			List<HotPepperRestaurant> restaurants = new ArrayList<>();
-			
-		
-				try {
-					String url = baseUrl +
-							"&start=" + startIdx;
-					System.out.println("POST URL: " + url);
+		int startIdx = 1;
+		List<HotPepperRestaurant> restaurants = new ArrayList<>();
+		try {
+			String url = baseUrl +
+					"&start=" + startIdx;
+			System.out.println("POST URL: " + url);
 
-					Request request = new Request.Builder().url(url).build();
-					Response response = client.newCall(request).execute();
+			Request request = new Request.Builder().url(url).build();
+			Response response = client.newCall(request).execute();
 
-					if (response.isSuccessful() && response.body() != null) {
-						String responseBody = response.body().string();
+			if (response.isSuccessful() && response.body() != null) {
+				String responseBody = response.body().string();
 
-						// デバッグ用にレスポンスボディを出力
-						System.out.println("Response Body: " + responseBody);
+				// デバッグ用にレスポンスボディを出力
+				System.out.println("Response Body: " + responseBody);
 
-						// XMLレスポンスの処理
-						if (responseBody.startsWith("<?xml")) {
-							DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-							DocumentBuilder builder = factory.newDocumentBuilder();
-							Document doc = builder.parse(new ByteArrayInputStream(responseBody.getBytes()));
+				// XMLレスポンスの処理
+				if (responseBody.startsWith("<?xml")) {
+					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder builder = factory.newDocumentBuilder();
+					Document doc = builder.parse(new ByteArrayInputStream(responseBody.getBytes()));
 
-							//次ページ確認処理
-							String resultsAvailable = getTagValue("results_available", doc.getDocumentElement());
-							String resultsReturned = getTagValue("results_returned", doc.getDocumentElement());
+					//次ページ確認処理
+					String resultsAvailable = getTagValue("results_available", doc.getDocumentElement());
+					String resultsReturned = getTagValue("results_returned", doc.getDocumentElement());
 
-							System.out.println("resultsAvailable: " + resultsAvailable);
+					System.out.println("resultsAvailable: " + resultsAvailable);
 
-							// 各レストランの情報を取得開始
-							NodeList shopNodes = doc.getElementsByTagName("shop");
-							for (int i = 0; i < shopNodes.getLength(); i++) {
-								
-								Element shopElement = (Element) shopNodes.item(i);
-								HotPepperRestaurant restaurant = new HotPepperRestaurant();
-								restaurant.setOpen(getTagValue("open", shopElement));
-								if (restaurant.getIsOpen()) {
-									restaurant.setId(getTagValue("id", shopElement));
-									restaurant.setName(getTagValue("name", shopElement));
-									restaurant.setName_kana(getTagValue("name_kana", shopElement));
-									restaurant.setLogo_url(getTagValue("logo_image", shopElement));
-									restaurant.setStation_name(getTagValue("station_name", shopElement));
-									restaurant.setArea_name(getTagValue("middle_area", shopElement));
+					// 各レストランの情報を取得開始
+					NodeList shopNodes = doc.getElementsByTagName("shop");
+					for (int i = 0; i < shopNodes.getLength(); i++) {
 
-									String address = getTagValue("address", shopElement);
-									address = convertZenkakuToHankaku(address);
-									restaurant.setAddress(address);
+						Element shopElement = (Element) shopNodes.item(i);
+						HotPepperRestaurant restaurant = new HotPepperRestaurant();
+						restaurant.setOpen(getTagValue("open", shopElement));
+						if (restaurant.getIsOpen()) {
+							restaurant.setId(getTagValue("id", shopElement));
+							restaurant.setName(getTagValue("name", shopElement));
+							restaurant.setName_kana(getTagValue("name_kana", shopElement));
+							restaurant.setLogo_url(getTagValue("logo_image", shopElement));
+							restaurant.setStation_name(getTagValue("station_name", shopElement));
+							restaurant.setArea_name(getTagValue("middle_area", shopElement));
 
-									Map<String, String> location = new HashMap<>();
-									location.put("lat", getTagValue("lat", shopElement));
-									location.put("lng", getTagValue("lng", shopElement));
-									restaurant.setLocation(location);
+							String address = getTagValue("address", shopElement);
+							address = convertZenkakuToHankaku(address);
+							restaurant.setAddress(address);
 
-									// ジャンル情報を取得
-									Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
-									restaurant.setGenre_name(getTagValue("name", genreElement));
-									restaurant.setGenre_catch(getTagValue("catch", genreElement));
-									restaurant.setCatch_word(getTagValue("catch", shopElement));
-									restaurant.setAccess(getTagValue("access", shopElement));
-									restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
-									restaurant.setUrls(getTagValue("pc",
-											(Element) shopElement.getElementsByTagName("urls").item(0)));
+							Map<String, String> location = new HashMap<>();
+							location.put("lat", getTagValue("lat", shopElement));
+							location.put("lng", getTagValue("lng", shopElement));
+							restaurant.setLocation(location);
 
-									// 写真URLのリスト処理
-									List<String> photos = new ArrayList<>();
-									Element photoElement = (Element) shopElement.getElementsByTagName("photo").item(0);
-									if (photoElement != null) {
-										NodeList pcPhotoNodes = photoElement.getElementsByTagName("pc").item(0)
-												.getChildNodes();
-										for (int j = 0; j < pcPhotoNodes.getLength(); j++) {
-											if (pcPhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
-												photos.add(pcPhotoNodes.item(j).getTextContent());
-											}
-										}
+							// ジャンル情報を取得
+							Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
+							restaurant.setGenre_name(getTagValue("name", genreElement));
+							restaurant.setGenre_catch(getTagValue("catch", genreElement));
+							restaurant.setCatch_word(getTagValue("catch", shopElement));
+							restaurant.setAccess(getTagValue("access", shopElement));
+							restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
+							restaurant.setUrls(getTagValue("pc",
+									(Element) shopElement.getElementsByTagName("urls").item(0)));
+
+							// 写真URLのリスト処理
+							List<String> photos = new ArrayList<>();
+							Element photoElement = (Element) shopElement.getElementsByTagName("photo").item(0);
+							if (photoElement != null) {
+								NodeList pcPhotoNodes = photoElement.getElementsByTagName("pc").item(0)
+										.getChildNodes();
+								for (int j = 0; j < pcPhotoNodes.getLength(); j++) {
+									if (pcPhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
+										photos.add(pcPhotoNodes.item(j).getTextContent());
 									}
-									restaurant.setPhotos(photos);
-
-									List<String> mobilePhotos = new ArrayList<>();
-									Element mobilePhotoElement = (Element) shopElement.getElementsByTagName("mobile")
-											.item(0);
-									if (mobilePhotoElement != null) {
-										NodeList mobilePhotoNodes = mobilePhotoElement.getChildNodes();
-										for (int j = 0; j < mobilePhotoNodes.getLength(); j++) {
-											if (mobilePhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
-												mobilePhotos.add(mobilePhotoNodes.item(j).getTextContent());
-											}
-										}
-									}
-									restaurant.setMobile_photos(mobilePhotos);
-
-									// restrantの各情報を表示
-									restaurants.add(restaurant);
-									if (restaurants.size() >= findCount) {
-										moreResults = false;
-										break;
-									}
-								} // 各レストランの情報を取得終了	
+								}
 							}
+							restaurant.setPhotos(photos);
 
-							// 次ページの開始インデックスを更新
-							startIdx += Integer.parseInt(resultsReturned);
-
-							// 追加の結果がない場合、ループを終了
-							if (restaurants.size() >= Integer.parseInt(resultsAvailable) ||
-									shopNodes.getLength() == 0) {
-								moreResults = false;
+							List<String> mobilePhotos = new ArrayList<>();
+							Element mobilePhotoElement = (Element) shopElement.getElementsByTagName("mobile")
+									.item(0);
+							if (mobilePhotoElement != null) {
+								NodeList mobilePhotoNodes = mobilePhotoElement.getChildNodes();
+								for (int j = 0; j < mobilePhotoNodes.getLength(); j++) {
+									if (mobilePhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
+										mobilePhotos.add(mobilePhotoNodes.item(j).getTextContent());
+									}
+								}
 							}
-						}
-					} else {
-						System.out.println("Request failed with status code: " + response.code());
-						moreResults = false;
+							restaurant.setMobile_photos(mobilePhotos);
+							// restrantの各情報を表示
+							restaurants.add(restaurant);
+
+						} // 各レストランの情報を取得終了	
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					moreResults = false;
+
+					// 次ページの開始インデックスを更新
 				}
-			}return restaurants;
-}}
+			} else {
+				System.out.println("Request failed with status code: " + response.code());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return restaurants;
+	}
+
+}
