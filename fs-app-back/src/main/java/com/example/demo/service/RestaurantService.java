@@ -62,7 +62,7 @@ public class RestaurantService {
 		Comparator<GooglePlaceRestaurant> compare = null;
 		switch(sort) {
 		case "rating": {
-			compare = Comparator.comparing(GooglePlaceRestaurant::getRating);
+			compare = Comparator.comparing(GooglePlaceRestaurant::getRating).reversed();
 			break;
 		}
 		case "name": {
