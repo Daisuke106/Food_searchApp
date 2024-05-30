@@ -29,7 +29,7 @@ public class AuthController {
 
 	private Map<String, String> pinStorage = new HashMap<>();
 
-	@PostMapping("/signin") // APIリクエスト(/api/auth/login)に対してのレスポンス
+	@PostMapping("/signin")
 	public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, String> loginData) {
 		String username = loginData.get("name");
 		String password = loginData.get("password");
