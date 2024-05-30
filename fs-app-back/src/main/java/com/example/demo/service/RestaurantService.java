@@ -10,10 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.model.GooglePlaceRestaurant;
 
-
 @Service
 public class RestaurantService {
-	public List<GooglePlaceRestaurant> getAllRestaurants(JSONObject jsonObj ,String sort) {
+	public List<GooglePlaceRestaurant> getAllRestaurants(JSONObject jsonObj, String sort) {
 		List<GooglePlaceRestaurant> list = new ArrayList<>();
 
 		JSONArray results = jsonObj.getJSONArray("results");
@@ -55,12 +54,12 @@ public class RestaurantService {
 				}
 				restaurant.setPhoto(photos);
 			}
-//			saveRestaurant(tabledata);
+			//			saveRestaurant(tabledata);
 			list.add(restaurant);
-			
+
 		}
 		Comparator<GooglePlaceRestaurant> compare = null;
-		switch(sort) {
+		switch (sort) {
 		case "rating": {
 			compare = Comparator.comparing(GooglePlaceRestaurant::getRating).reversed();
 			break;
@@ -69,32 +68,28 @@ public class RestaurantService {
 			compare = Comparator.comparing(GooglePlaceRestaurant::getName);
 			break;
 		}
-		case "icon":{
+		case "icon": {
 			compare = Comparator.comparing(GooglePlaceRestaurant::getIcon);
-            break;		
+			break;
 		}
-		case "price_level":{
+		case "price_level": {
 			compare = Comparator.comparing(GooglePlaceRestaurant::getPrice_level);
 			break;
 		}
-//		case "photo":{
-//			compare = Comparator.comparing(GooglePlaceRestaurant::getPhoto);
-//			break;
-//		}
-		case "vicinity" : {
+		//		case "photo":{
+		//			compare = Comparator.comparing(GooglePlaceRestaurant::getPhoto);
+		//			break;
+		//		}
+		case "vicinity": {
 			compare = Comparator.comparing(GooglePlaceRestaurant::getVicinity);
 			break;
 		}
-		default :
+		default:
 		}
 		if (compare != null) {
 			list.sort(compare);
 		}
-		
+
 		return list;
 	}
-
-
-	
-	
 }

@@ -48,12 +48,10 @@ public class HotPepperRestaurant {
 	private List<String> mobile_photos;
 
 	// 個別実装
-	// 開店確認用
+	// 営業確認用
 	private boolean isOpen;
-
 	// 各曜日の営業時間
 	private Map<String, String[]> openSchedule;
-
 	// 本日の営業時間
 	private String todayOpen;
 

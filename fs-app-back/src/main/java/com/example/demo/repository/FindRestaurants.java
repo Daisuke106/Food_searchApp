@@ -9,12 +9,15 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.example.demo.entity.HotPepperRestaurant;
+import com.example.demo.entity.Profile;
+import com.example.demo.service.ProfileService;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -95,6 +98,8 @@ public class FindRestaurants {
 		return genre;
 	}
 
+	private String removeGenre;
+
 	// 検索する予算
 	private String budget; // コードをマスターAPIから取得
 
@@ -107,6 +112,32 @@ public class FindRestaurants {
 
 	private void addUrl(String key, String value) {
 		baseUrl += "&" + key + "=" + value;
+	}
+
+	@Autowired
+	ProfileService profileService;
+
+	public void setValueByProfile(int userId) {
+		Profile userProfile = profileService.getProfile(userId);
+
+		if (userProfile != null) {
+			int userRange = userProfile.getActivityRange();
+
+			if (userRange <= 3) {
+				setRange(1);
+			} else if (userRange <= 5) {
+				setRange(2);
+			} else if (userRange <= 10) {
+				setRange(3);
+			} else if (userRange <= 20) {
+				setRange(4);
+			} else {
+				setRange(5);
+			}
+
+			setGenre(userProfile.getFavoriteGenre());
+			setBudget(userProfile.getBudget());
+		}
 	}
 
 	// デフォルトコンストラクタ
@@ -165,25 +196,35 @@ public class FindRestaurants {
 	public void setGenre(String keyword) {
 		String genreUrl = "http://webservice.recruit.co.jp/hotpepper/genre/v1/?key=" + apiKey;
 		this.genre = keyword;
-		genreUrl += "&keyword=" + keyword;
+		String[] keywords = keyword.split(" ");
+		List<String> genreCodes = new ArrayList<>();
+
 		try {
-			Request request = new Request.Builder().url(genreUrl).build();
-			Response response = client.newCall(request).execute();
-			if (response.isSuccessful() && response.body() != null) {
-				String responseBody = response.body().string();
-				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder builder = factory.newDocumentBuilder();
-				Document doc = builder.parse(new ByteArrayInputStream(responseBody.getBytes()));
-				NodeList genreNodes = doc.getElementsByTagName("genre");
-				Element genreElement = (Element) genreNodes.item(0);
-				String genreCode = genreElement.getElementsByTagName("code").item(0).getTextContent();
-
-				// baseUrlにジャンルフィルターを追加
-				addUrl("genre", genreCode);
+			for (String key : keywords) {
+				String urlWithKeyword = genreUrl + "&keyword=" + key;
+				Request request = new Request.Builder().url(urlWithKeyword).build();
+				Response response = client.newCall(request).execute();
+				if (response.isSuccessful() && response.body() != null) {
+					String responseBody = response.body().string();
+					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder builder = factory.newDocumentBuilder();
+					Document doc = builder.parse(new ByteArrayInputStream(responseBody.getBytes()));
+					NodeList genreNodes = doc.getElementsByTagName("genre");
+					if (genreNodes.getLength() > 0) {
+						Element genreElement = (Element) genreNodes.item(0);
+						String genreCode = genreElement.getElementsByTagName("code").item(0).getTextContent();
+						genreCodes.add(genreCode);
+					}
+				}
 			}
-		} catch (
 
-		Exception e) {
+			if (!genreCodes.isEmpty()) {
+				for (String code : genreCodes) {
+					// baseUrlにジャンルフィルターを追加
+					addUrl("genre", code);
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -286,6 +327,7 @@ public class FindRestaurants {
 	}
 
 	// メインとなる検索メソッド
+	// 営業中の店を検索
 	public List<HotPepperRestaurant> find() {
 		int findCount = this.countNum;
 		int startIdx = 1;
@@ -331,6 +373,18 @@ public class FindRestaurants {
 							HotPepperRestaurant restaurant = new HotPepperRestaurant();
 							restaurant.setOpen(getTagValue("open", shopElement));
 							if (restaurant.getIsOpen()) {
+								// ジャンル情報を取得
+								Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
+								restaurant.setGenre_name(getTagValue("name", genreElement));
+								if (removeGenre != null && removeGenre.equals(restaurant.getGenre_name())) {
+									continue;
+								}
+								restaurant.setGenre_catch(getTagValue("catch", genreElement));
+								restaurant.setCatch_word(getTagValue("catch", shopElement));
+								restaurant.setAccess(getTagValue("access", shopElement));
+								restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
+								restaurant.setUrls(getTagValue("pc",
+										(Element) shopElement.getElementsByTagName("urls").item(0)));
 								restaurant.setId(getTagValue("id", shopElement));
 								restaurant.setName(getTagValue("name", shopElement));
 								restaurant.setName_kana(getTagValue("name_kana", shopElement));
@@ -346,16 +400,6 @@ public class FindRestaurants {
 								location.put("lat", getTagValue("lat", shopElement));
 								location.put("lng", getTagValue("lng", shopElement));
 								restaurant.setLocation(location);
-
-								// ジャンル情報を取得
-								Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
-								restaurant.setGenre_name(getTagValue("name", genreElement));
-								restaurant.setGenre_catch(getTagValue("catch", genreElement));
-								restaurant.setCatch_word(getTagValue("catch", shopElement));
-								restaurant.setAccess(getTagValue("access", shopElement));
-								restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
-								restaurant.setUrls(getTagValue("pc",
-										(Element) shopElement.getElementsByTagName("urls").item(0)));
 
 								// 写真URLのリスト処理
 								List<String> photos = new ArrayList<>();
@@ -391,6 +435,7 @@ public class FindRestaurants {
 									break;
 								}
 							} // 各レストランの情報を取得終了	
+
 						}
 
 						// 次ページの開始インデックスを更新
@@ -414,7 +459,7 @@ public class FindRestaurants {
 		return restaurants;
 	}
 
-	// メインとなる検索メソッド
+	// 営業時刻を管理しない全検索メソッド
 	public List<HotPepperRestaurant> findAll() {
 		int startIdx = 1;
 		List<HotPepperRestaurant> restaurants = new ArrayList<>();
@@ -440,8 +485,6 @@ public class FindRestaurants {
 
 					//次ページ確認処理
 					String resultsAvailable = getTagValue("results_available", doc.getDocumentElement());
-					String resultsReturned = getTagValue("results_returned", doc.getDocumentElement());
-
 					System.out.println("resultsAvailable: " + resultsAvailable);
 
 					// 各レストランの情報を取得開始
@@ -451,66 +494,61 @@ public class FindRestaurants {
 						Element shopElement = (Element) shopNodes.item(i);
 						HotPepperRestaurant restaurant = new HotPepperRestaurant();
 						restaurant.setOpen(getTagValue("open", shopElement));
-						if (restaurant.getIsOpen()) {
-							restaurant.setId(getTagValue("id", shopElement));
-							restaurant.setName(getTagValue("name", shopElement));
-							restaurant.setName_kana(getTagValue("name_kana", shopElement));
-							restaurant.setLogo_url(getTagValue("logo_image", shopElement));
-							restaurant.setStation_name(getTagValue("station_name", shopElement));
-							restaurant.setArea_name(getTagValue("middle_area", shopElement));
+						restaurant.setId(getTagValue("id", shopElement));
+						restaurant.setName(getTagValue("name", shopElement));
+						restaurant.setName_kana(getTagValue("name_kana", shopElement));
+						restaurant.setLogo_url(getTagValue("logo_image", shopElement));
+						restaurant.setStation_name(getTagValue("station_name", shopElement));
+						restaurant.setArea_name(getTagValue("middle_area", shopElement));
 
-							String address = getTagValue("address", shopElement);
-							address = convertZenkakuToHankaku(address);
-							restaurant.setAddress(address);
+						String address = getTagValue("address", shopElement);
+						address = convertZenkakuToHankaku(address);
+						restaurant.setAddress(address);
 
-							Map<String, String> location = new HashMap<>();
-							location.put("lat", getTagValue("lat", shopElement));
-							location.put("lng", getTagValue("lng", shopElement));
-							restaurant.setLocation(location);
+						Map<String, String> location = new HashMap<>();
+						location.put("lat", getTagValue("lat", shopElement));
+						location.put("lng", getTagValue("lng", shopElement));
+						restaurant.setLocation(location);
 
-							// ジャンル情報を取得
-							Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
-							restaurant.setGenre_name(getTagValue("name", genreElement));
-							restaurant.setGenre_catch(getTagValue("catch", genreElement));
-							restaurant.setCatch_word(getTagValue("catch", shopElement));
-							restaurant.setAccess(getTagValue("access", shopElement));
-							restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
-							restaurant.setUrls(getTagValue("pc",
-									(Element) shopElement.getElementsByTagName("urls").item(0)));
+						// ジャンル情報を取得
+						Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
+						restaurant.setGenre_name(getTagValue("name", genreElement));
+						restaurant.setGenre_catch(getTagValue("catch", genreElement));
+						restaurant.setCatch_word(getTagValue("catch", shopElement));
+						restaurant.setAccess(getTagValue("access", shopElement));
+						restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
+						restaurant.setUrls(getTagValue("pc",
+								(Element) shopElement.getElementsByTagName("urls").item(0)));
 
-							// 写真URLのリスト処理
-							List<String> photos = new ArrayList<>();
-							Element photoElement = (Element) shopElement.getElementsByTagName("photo").item(0);
-							if (photoElement != null) {
-								NodeList pcPhotoNodes = photoElement.getElementsByTagName("pc").item(0)
-										.getChildNodes();
-								for (int j = 0; j < pcPhotoNodes.getLength(); j++) {
-									if (pcPhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
-										photos.add(pcPhotoNodes.item(j).getTextContent());
-									}
+						// 写真URLのリスト処理
+						List<String> photos = new ArrayList<>();
+						Element photoElement = (Element) shopElement.getElementsByTagName("photo").item(0);
+						if (photoElement != null) {
+							NodeList pcPhotoNodes = photoElement.getElementsByTagName("pc").item(0)
+									.getChildNodes();
+							for (int j = 0; j < pcPhotoNodes.getLength(); j++) {
+								if (pcPhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
+									photos.add(pcPhotoNodes.item(j).getTextContent());
 								}
 							}
-							restaurant.setPhotos(photos);
+						}
+						restaurant.setPhotos(photos);
 
-							List<String> mobilePhotos = new ArrayList<>();
-							Element mobilePhotoElement = (Element) shopElement.getElementsByTagName("mobile")
-									.item(0);
-							if (mobilePhotoElement != null) {
-								NodeList mobilePhotoNodes = mobilePhotoElement.getChildNodes();
-								for (int j = 0; j < mobilePhotoNodes.getLength(); j++) {
-									if (mobilePhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
-										mobilePhotos.add(mobilePhotoNodes.item(j).getTextContent());
-									}
+						List<String> mobilePhotos = new ArrayList<>();
+						Element mobilePhotoElement = (Element) shopElement.getElementsByTagName("mobile")
+								.item(0);
+						if (mobilePhotoElement != null) {
+							NodeList mobilePhotoNodes = mobilePhotoElement.getChildNodes();
+							for (int j = 0; j < mobilePhotoNodes.getLength(); j++) {
+								if (mobilePhotoNodes.item(j).getNodeType() == Node.ELEMENT_NODE) {
+									mobilePhotos.add(mobilePhotoNodes.item(j).getTextContent());
 								}
 							}
-							restaurant.setMobile_photos(mobilePhotos);
-							// restrantの各情報を表示
-							restaurants.add(restaurant);
-
-						} // 各レストランの情報を取得終了	
+						}
+						restaurant.setMobile_photos(mobilePhotos);
+						restaurants.add(restaurant);
 					}
 
-					// 次ページの開始インデックスを更新
 				}
 			} else {
 				System.out.println("Request failed with status code: " + response.code());
@@ -519,6 +557,14 @@ public class FindRestaurants {
 			e.printStackTrace();
 		}
 		return restaurants;
+	}
+
+	public String getRemoveGenre() {
+		return removeGenre;
+	}
+
+	public void setRemoveGenre(String removeGenre) {
+		this.removeGenre = removeGenre;
 	}
 
 }
