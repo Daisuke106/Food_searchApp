@@ -61,12 +61,10 @@ function Signin() {
     // 画像のリストを定義
     const [errorMessage, setErrorMessage] = useState('');
     const images = [
-        "/images/food_gurume.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_1.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_2.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_3.png",
-        "https://dragon-ball-official.com/assets/img/intro/intro_4.png",
-        "/images/sample_food.jpg"
+        "/images/signin_img_0.png",
+        "/images/signin_img_1.jpg",
+        "/images/signin_img_2.jpg",
+        "/images/signin_img_3.jpg",
     ];
     const navigate = useNavigate();
 

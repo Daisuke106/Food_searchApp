@@ -23,7 +23,7 @@ public class HPRcontroller {
 	public ResponseEntity<List<HotPepperRestaurant>> getNearbyRestaurants(
 			@RequestParam("lat") double lat,
 			@RequestParam("lng") double lng) {
-		List<HotPepperRestaurant> restaurants = hotPepperService.getNearbyRestaurants(lat, lng);
+		List<HotPepperRestaurant> restaurants = hotPepperService.getNearbyRestaurantsDemo(lat, lng);
 		return ResponseEntity.ok(restaurants);
 	}
 }

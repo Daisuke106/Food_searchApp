@@ -14,19 +14,21 @@ public class HotPepperService {
 	@Value("${hotpepper.gourmet.api.key}")
 	private String apiKey;
 
-	public List<HotPepperRestaurant> getNearbyRestaurants(double lat, double lng) {
+	// demo用
+	//営業時間を加味せずに周辺の飲食店を全て取得
+	public List<HotPepperRestaurant> getNearbyRestaurantsDemo(double lat, double lng) {
 		FindRestaurants findRestaurants = new FindRestaurants(apiKey);
 		Map<String, String> location = Map.of(
 				"lat", String.valueOf(lat),
 				"lng", String.valueOf(lng));
 		findRestaurants.setLocation(location);
-		findRestaurants.setRange(3); // 1000m
+		findRestaurants.setRange(5); // 3000m
 		findRestaurants.setNum(50);
 		findRestaurants.setRemoveGenre("居酒屋");
 		findRestaurants.setGenreDefault();
 		// { "和食", "洋食", "イタリアン・フレンチ", "中華", "焼肉", "ラーメン", "お好み焼き・もんじゃ" }
 
-		List<HotPepperRestaurant> restaurants = findRestaurants.find();
+		List<HotPepperRestaurant> restaurants = findRestaurants.findAll();
 		return restaurants;
 	}
 
