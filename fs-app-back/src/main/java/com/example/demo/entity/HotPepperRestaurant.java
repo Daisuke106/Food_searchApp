@@ -34,7 +34,9 @@ public class HotPepperRestaurant {
 	private String genre_name; //genre.name
 	// ジャンルキャッチ
 	private String genre_catch;
-	// キャッチコピー
+	// サブジャンル
+	private String sub_genre_name; //sub_genre.name
+	// キャッチワード
 	private String catch_word;
 	// アクセス
 	private String access;
@@ -211,6 +213,14 @@ public class HotPepperRestaurant {
 
 	public String getTodayOpen() {
 		return todayOpen;
+	}
+
+	public String getSub_genre_name() {
+		return sub_genre_name;
+	}
+
+	public void setSub_genre_name(String sub_genre_name) {
+		this.sub_genre_name = sub_genre_name;
 	}
 
 	// 営業時間文字列を正規化し、各曜日と営業時間を整形、取得

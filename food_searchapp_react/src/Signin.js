@@ -34,6 +34,8 @@ import ImageFade from './ImageFade';
 // ページ遷移用
 import { useNavigate } from 'react-router-dom';
 
+import userStorage from "./userStorage";
+
 // ロゴ画像のパスを定義
 // ロゴ画像は、public/imagesディレクトリに配置されている
 const logoImage = process.env.PUBLIC_URL + '/images/FOOD_search.jpg';
@@ -131,7 +133,7 @@ function Signin() {
             // ログイン成功時の処理
             if (response.ok) {
                 const data = await response.json();
-                localStorage.setItem("user", JSON.stringify(data));
+                userStorage.setCurrentUser(data);
                 console.log('認証成功:', data);
                 navigate('/main');
             } else {

@@ -305,9 +305,14 @@ public class FindRestaurants {
 
 	// タグの値を取得する内部メソッド
 	private String getTagValue(String tag, Element element) {
-		NodeList nodeList = element.getElementsByTagName(tag);
-		if (nodeList != null && nodeList.getLength() > 0) {
-			return nodeList.item(0).getTextContent();
+		if (element != null) {
+			NodeList nodeList = element.getElementsByTagName(tag);
+			if (nodeList.getLength() > 0) {
+				Node node = nodeList.item(0);
+				if (node != null) {
+					return node.getTextContent();
+				}
+			}
 		}
 		return null;
 	}
@@ -380,6 +385,12 @@ public class FindRestaurants {
 									continue;
 								}
 								restaurant.setGenre_catch(getTagValue("catch", genreElement));
+								Element subGenreElement = (Element) shopElement.getElementsByTagName("sub_genre")
+										.item(0);
+								restaurant.setSub_genre_name(getTagValue("name", subGenreElement));
+								if (removeGenre != null && removeGenre.equals(restaurant.getSub_genre_name())) {
+									continue;
+								}
 								restaurant.setCatch_word(getTagValue("catch", shopElement));
 								restaurant.setAccess(getTagValue("access", shopElement));
 								restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
@@ -461,11 +472,14 @@ public class FindRestaurants {
 
 	// 営業時刻を管理しない全検索メソッド
 	public List<HotPepperRestaurant> findAll() {
+		int findCount = this.countNum;
 		int startIdx = 1;
 		List<HotPepperRestaurant> restaurants = new ArrayList<>();
 		try {
 			String url = baseUrl +
+					"&count=" + findCount +
 					"&start=" + startIdx;
+
 			System.out.println("POST URL: " + url);
 
 			Request request = new Request.Builder().url(url).build();
@@ -493,6 +507,7 @@ public class FindRestaurants {
 
 						Element shopElement = (Element) shopNodes.item(i);
 						HotPepperRestaurant restaurant = new HotPepperRestaurant();
+
 						restaurant.setOpen(getTagValue("open", shopElement));
 						restaurant.setId(getTagValue("id", shopElement));
 						restaurant.setName(getTagValue("name", shopElement));
@@ -510,15 +525,30 @@ public class FindRestaurants {
 						location.put("lng", getTagValue("lng", shopElement));
 						restaurant.setLocation(location);
 
-						// ジャンル情報を取得
+						// Nullチェックを追加
 						Element genreElement = (Element) shopElement.getElementsByTagName("genre").item(0);
-						restaurant.setGenre_name(getTagValue("name", genreElement));
-						restaurant.setGenre_catch(getTagValue("catch", genreElement));
+						if (genreElement != null) {
+							restaurant.setGenre_name(getTagValue("name", genreElement));
+							restaurant.setGenre_catch(getTagValue("catch", genreElement));
+						}
+
+						Element subGenreElement = (Element) shopElement.getElementsByTagName("sub_genre").item(0);
+						if (subGenreElement != null) {
+							restaurant.setSub_genre_name(getTagValue("name", subGenreElement));
+						}
+
+						if (removeGenre != null && (removeGenre.equals(restaurant.getSub_genre_name())
+								|| removeGenre.equals(restaurant.getGenre_name()))) {
+							continue;
+						}
+
 						restaurant.setCatch_word(getTagValue("catch", shopElement));
 						restaurant.setAccess(getTagValue("access", shopElement));
-						restaurant.setMobile_access(getTagValue("mobile_access", shopElement));
-						restaurant.setUrls(getTagValue("pc",
-								(Element) shopElement.getElementsByTagName("urls").item(0)));
+
+						Element urlsElement = (Element) shopElement.getElementsByTagName("urls").item(0);
+						if (urlsElement != null) {
+							restaurant.setUrls(getTagValue("pc", urlsElement));
+						}
 
 						// 写真URLのリスト処理
 						List<String> photos = new ArrayList<>();

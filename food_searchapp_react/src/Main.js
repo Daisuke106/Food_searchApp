@@ -1,16 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 import {
-    Box, Heading, Button, Grid, GridItem, Card, CardHeader, CardBody, CardFooter,
+    Box, Button, Grid, GridItem, Card, CardHeader, CardBody, CardFooter,
     useNotice, Loading, Modal, ModalOverlay, ModalHeader, ModalCloseButton,
     ModalBody, ModalFooter, Input, useDisclosure, FormControl, Label,
-    Drawer, DrawerOverlay, DrawerCloseButton, DrawerHeader, DrawerBody, DrawerFooter, useLoading, NativeSelect, NativeOption
+    Drawer, DrawerOverlay, DrawerCloseButton, DrawerHeader, DrawerBody,
+    DrawerFooter, useLoading, NativeSelect, NativeOption, Select, Option, Heading
 } from '@yamada-ui/react';
 import { LoadScript, GoogleMap, MarkerF } from "@react-google-maps/api";
 import Slider from "react-slick";
 import './Main.css';
 import { Player as LottiePlayer } from '@lottiefiles/react-lottie-player';
 import { motion, AnimatePresence } from 'framer-motion';
+import { YearPicker } from "@yamada-ui/calendar";
+
+import userStorage from './userStorage';
 
 // randomでnum個取得して、取得したデータを削除
 const getRandomElementsAndRemove = (arr, num) => {
@@ -25,17 +29,36 @@ const getRandomElementsAndRemove = (arr, num) => {
     return result;
 };
 
+
 function Main() {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isAddModalOpen, onOpen: onAddModalOpen, onClose: onAddModalClose } = useDisclosure();
     const [shopModalOpen, setShopModalOpen] = useState(false); // State to control the shop modal
+    const [profileModalOpen, setProfileModalOpen] = useState(false);
     const [position, setPosition] = useState({ lat: 35.680959106959, lng: 139.76730676352 });
+    const [loading, setLoading] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const [userId, setUserId] = useState(null);
+
+    const openProfileModal = () => setProfileModalOpen(true);
+    const closeProfileModal = () => setProfileModalOpen(false);
+
+    // const passwordPlaceholder = "*".repeat(userData.password.length);
 
     useEffect(() => {
         // Automatically fade out the animation after 3 seconds
-        handleLocation();
         const timer = setTimeout(() => {
             setAnimationVisible(false);
         }, 3000);
+        handleLocation();
+        const user = userStorage.getCurrentUser();
+        if (user) {
+            // user取得時の処理
+            console.log(user);
+            setUserData(user);
+            setUserId(user.userId);
+        }
+
         return () => clearTimeout(timer);
     }, []);
 
@@ -89,13 +112,13 @@ function Main() {
         }
     }
 
-    const bannerData = [
-        { url: "/images/free_food/beer.jpg", name: "バナー1" },
-        { url: "/images/free_food/breadtea.jpg", name: "バナー2" },
-        { url: "/images/free_food/coffee.jpg", name: "バナー3" },
-        { url: "/images/free_food/hamberger.jpg", name: "バナー4" },
-        { url: "/images/free_food/pancake.jpg", name: "バナー5" }
-    ];
+    // const bannerData = [
+    //     { url: datas[0].photos[0], name: datas[0].name },
+    //     { url: datas[1].photos[0], name: datas[1].name },
+    //     { url: datas[2].photos[0], name: datas[2].name },
+    //     { url: datas[3].photos[0], name: datas[3].name },
+    //     { url: datas[4].photos[0], name: datas[4].name }
+    // ];
 
     const handleLocation = () => {
         noticeRef.current = notice({
@@ -157,6 +180,15 @@ function Main() {
         autoplaySpeed: 3000,
     };
 
+    const handleAddSubmit = async () => {
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false);
+            onAddModalClose(); // 追加登録のモーダルを閉じる
+            alert('登録が完了しました。');
+        }, 2000);
+    };
+
     return (
         <Box className="container-main">
             <AnimatePresence>
@@ -201,8 +233,49 @@ function Main() {
                                 </div>
                             ))}
                         </Slider>
+
                     </Box>
                     <Box className="button-container">
+
+                        <Box className="centered-container">
+                            <Card className='main_card'>
+                                <CardHeader>
+                                    <Box
+                                        display="flex"
+                                        justifyContent="center"
+                                        alignItems="center"
+                                        width="600px"
+                                        marginTop="10px" // 画像とタイトルの間に少しスペースを追加
+                                        flexWrap="wrap"
+                                    >
+                                        <Heading as="h2" size="xl" marginBottom="10px" textAlign="center" width="100%">
+                                            {datas[0].name}
+                                        </Heading>
+                                        <Box
+                                            as="img"
+                                            src={datas[0].photos[0]}
+                                            alt="Example"
+                                            width="300px"
+                                            height="300px"
+                                            objectFit="cover"
+                                        />
+                                    </Box>
+                                </CardHeader>
+                                <CardBody>
+                                    <Heading as="h3" size="md" fontWeight="normal" marginBottom="8px">
+                                        {`${datas[0].catch_word}`}
+                                    </Heading>
+                                </CardBody>
+                                <CardFooter>
+                                    <Box>
+                                        <p>{datas[0].address}</p>
+                                        <p>営業時間: {datas[0].todayOpen}</p>
+                                        <p>{datas[0].catch_word}</p>
+                                    </Box>
+                                </CardFooter>
+                            </Card>
+                        </Box>
+
                         <Box className="map-container">
                             <LoadScript
                                 googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
@@ -214,7 +287,7 @@ function Main() {
                                 async={true}
                                 defer={true}
                             >
-                                <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={position} zoom={15}>
+                                <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={position} zoom={18}>
                                     <MarkerF position={position} />
                                 </GoogleMap>
                             </LoadScript>
@@ -280,7 +353,7 @@ function Main() {
                                     <Button colorScheme="blue" w="full">もっと見る</Button>
                                 </GridItem>
                                 <GridItem colSpan={3} textAlign="center">
-                                    <Button colorScheme="green" w="full">再検索</Button>
+                                    <Button onClick={handleLocation} colorScheme="green" w="full">再検索</Button>
                                 </GridItem>
                             </Grid>
                         </Grid>
@@ -340,10 +413,58 @@ function Main() {
                                     <Button onClick={handleLocation} colorScheme="green" w="full">近くのお店を探す</Button>
                                 </GridItem>
                                 <GridItem>
-                                    <Button colorScheme="orange" w="full">プロフィール</Button>
+                                    <Button onClick={openProfileModal} colorScheme="orange">プロフィール</Button>
+
+                                    <Modal isOpen={profileModalOpen} onClose={closeProfileModal} size="md">
+                                        <ModalOverlay />
+                                        <ModalCloseButton />
+                                        <ModalHeader>プロフィール</ModalHeader>
+                                        <ModalBody>
+                                            <FormControl mt={4}>
+                                                <Label>ユーザ名</Label>
+                                                <Input type="text" value={userData.name} readOnly />
+                                            </FormControl>
+                                            <FormControl>
+                                                <Label>メールアドレス</Label>
+                                                <Input type="email" value={userData.email} readOnly />
+                                            </FormControl>
+                                            {/* <FormControl mt={4}>
+                                                <Label>パスワード</Label>
+                                                <Input type="text" value={passwordPlaceholder} readOnly />
+                                            </FormControl> */}
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button variant="ghost" onClick={closeProfileModal}>閉じる</Button>
+                                        </ModalFooter>
+                                    </Modal>
                                 </GridItem>
                                 <GridItem>
-                                    <Button colorScheme="red" w="full">お気に入り</Button>
+                                    <Button onClick={onAddModalOpen}>追加登録</Button>
+                                    <Modal isOpen={isAddModalOpen} onClose={onAddModalClose} isCentered>
+                                        <ModalOverlay />
+                                        <ModalHeader>追加登録</ModalHeader>
+                                        <ModalCloseButton />
+                                        <ModalBody>
+                                            <FormControl>
+                                                <Label>性別</Label>
+                                                <Select placeholder="性別を選択">
+                                                    <Option value="male">男性</Option>
+                                                    <Option value="female">女性</Option>
+                                                    <Option value="other">その他</Option>
+                                                </Select>
+                                            </FormControl>
+                                            <FormControl mt={4}>
+                                                <Label>生年月日</Label>
+                                                <YearPicker placeholder="年を選択" />
+                                            </FormControl>
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button colorScheme="blue" mr={3} onClick={handleAddSubmit} isLoading={loading}>
+                                                送信
+                                            </Button>
+                                            <Button variant="ghost" onClick={onAddModalClose}>閉じる</Button>
+                                        </ModalFooter>
+                                    </Modal>
                                 </GridItem>
                             </Grid>
                         </Box>
@@ -352,9 +473,9 @@ function Main() {
                         最近の閲覧履歴
                     </Box>
                     <div className="scroll-container">
-                        {bannerData.map(data => (
-                            <div key={data.url} className="scroll-item">
-                                <img src={data.url} alt={data.name} className="scroll-image" />
+                        {datas.map(data => (
+                            <div key={data.id} className="scroll-item">
+                                <img src={data.photos[0]} alt={data.name} className="scroll-image" />
                                 <div className="scroll-text">{data.name}</div>
                             </div>
                         ))}
